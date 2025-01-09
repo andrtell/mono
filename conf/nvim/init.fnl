@@ -1,6 +1,3 @@
-(set vim.g.mapleader " ")
-(set vim.g.maplocalleader ",")
-
 (fn file-exists? [path] (vim.uv.fs_stat path))
 
 (fn shell-error? [] (not (= vim.v.shell_error 0)))
@@ -30,6 +27,9 @@
 (local packages-dir (.. (vim.fn.stdpath :config) "/packages"))
 
 (install-lazy packages-dir)
+
+(set vim.g.mapleader " ")
+(set vim.g.maplocalleader ",")
 
 (local config {:root packages-dir
        	       :lockfile (.. packages-dir "/lazy-lock.json")

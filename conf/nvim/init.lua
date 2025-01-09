@@ -1,6 +1,4 @@
 -- [nfnl] Compiled from init.fnl by https://github.com/Olical/nfnl, do not edit.
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
 local function file_exists_3f(path)
   return vim.uv.fs_stat(path)
 end
@@ -34,6 +32,8 @@ local function install_lazy(packages_dir)
 end
 local packages_dir = (vim.fn.stdpath("config") .. "/packages")
 install_lazy(packages_dir)
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
 local config = {root = packages_dir, lockfile = (packages_dir .. "/lazy-lock.json"), spec = {{"Olical/nfnl", ft = "fennel"}}, checker = {enabled = true}, install = {colorscheme = {"default"}}}
 local lazy = require("lazy")
 return lazy.setup(config)
