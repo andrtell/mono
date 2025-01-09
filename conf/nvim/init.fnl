@@ -39,3 +39,6 @@
 	       :install {:colorscheme [ "default" ] }})
 
 (let [lazy (require :lazy)] (lazy.setup config))
+
+(require "options")
+(require "keymaps")
