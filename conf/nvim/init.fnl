@@ -6,11 +6,11 @@
 
 (fn clone-lazy [target-dir]
 	(let [cmd ["git" 
-		   "clone" 
-		   "--filter=blob:none" 
-		   "--branch=stable" 
-		   "https://github.com/folke/lazy.nvim.git" 
-		   target-dir]]
+			   "clone"
+			   "--filter=blob:none"
+			   "--branch=stable"
+			   "https://github.com/folke/lazy.nvim.git"
+			   target-dir]]
 	  (vim.fn.system cmd)))
 
 (fn clone-lazy-or-die [target-dir]
@@ -21,7 +21,7 @@
 (fn install-lazy [packages-dir] 
   (let [lazy-dir (.. packages-dir "/lazy.nvim")] 
     (if (not (file-exists? lazy-dir))
-	(clone-lazy-or-die lazy-dir)) 
+		(clone-lazy-or-die lazy-dir)) 
     (vim.opt.rtp:prepend lazy-dir)))
 
 (local packages-dir (.. (vim.fn.stdpath :config) "/packages"))
@@ -32,13 +32,13 @@
 (set vim.g.maplocalleader ",")
 
 (local config {:root packages-dir
-       	       :lockfile (.. packages-dir "/lazy-lock.json")
-	       :spec [{ 1 "Olical/nfnl" :ft "fennel" }]
-		      ; {:import "spec"}]
-	       :checker {:enabled true }
-	       :install {:colorscheme [ "default" ] }})
+	   		   :lockfile (.. packages-dir "/lazy-lock.json")
+			   :spec [{ 1 "Olical/nfnl" :ft "fennel" } {:import "spec"}]
+			   :checker {:enabled false }
+			   :install {:colorscheme [ "quiet" ] }})
 
 (let [lazy (require :lazy)] (lazy.setup config))
 
-(require "options")
-(require "keymaps")
+(require :options)
+(require :interface)
+(require :keymaps)

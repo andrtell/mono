@@ -34,10 +34,11 @@ local packages_dir = (vim.fn.stdpath("config") .. "/packages")
 install_lazy(packages_dir)
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
-local config = {root = packages_dir, lockfile = (packages_dir .. "/lazy-lock.json"), spec = {{"Olical/nfnl", ft = "fennel"}}, checker = {enabled = true}, install = {colorscheme = {"default"}}}
+local config = {root = packages_dir, lockfile = (packages_dir .. "/lazy-lock.json"), spec = {{"Olical/nfnl", ft = "fennel"}, {import = "spec"}}, checker = {enabled = false}, install = {colorscheme = {"quiet"}}}
 do
   local lazy = require("lazy")
   lazy.setup(config)
 end
 require("options")
+require("interface")
 return require("keymaps")
