@@ -35,10 +35,11 @@
 	   		   :lockfile (.. packages-dir "/lazy-lock.json")
 			   :spec [{ 1 "Olical/nfnl" :ft "fennel" } {:import "spec"}]
 			   :checker {:enabled false }
-			   :install {:colorscheme [ "quiet" ] }})
+			   :install {:colorscheme [ "binary" ] }})
 
 (let [lazy (require :lazy)] (lazy.setup config))
 
 (require :options)
-(require :interface)
 (require :keymaps)
+(require :statusline)
+(require :colorscheme)
