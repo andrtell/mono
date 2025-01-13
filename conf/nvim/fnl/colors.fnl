@@ -37,7 +37,7 @@
 
 (reset-hl)
 
-(let [red (r 75 91) 
+(let [red (r 76 91) 
 	  blue (b 75 91)
 	  orange (o 75 91)
 	  yellow (y 77 91)
