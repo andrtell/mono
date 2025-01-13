@@ -23,7 +23,7 @@
 (fn o [s l] (hsl 39 s l))
 (fn y [s l] (hsl 60 s l))
 (fn g [s l] (hsl 120 s l))
-(fn b [s l] (hsl 210 s l))
+(fn b [s l] (hsl 220 s l))
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
@@ -39,8 +39,11 @@
 
 (let [red (r 75 90) 
 	  blue (b 75 91)
-	  yellow (y 75 90)
-	  green (g 75 90)]
+	  orange (o 75 90)
+	  yellow (y 75 91)
+	  green (g 75 90)
+	  purple (p 75 90)
+	  ]
 	(set-hl :Search 	{:bg yellow})
 	(set-hl :IncSearch 	{:bg yellow})
 	(set-hl :CurSearch 	{:bg yellow})
@@ -50,7 +53,7 @@
 	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 84)})
 	(set-hl :Pmenu 		{:fg (w 0) :bg (w 93)})
 	(set-hl :StatusLine {:fg (w 0) :bg (w 91)})
-	(set-hl :LeapLabelPrimary {:bg blue}))
+	(set-hl :LeapLabelPrimary {:bg purple}))
 
 
 
