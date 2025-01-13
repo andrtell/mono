@@ -37,10 +37,10 @@
 
 (reset-hl)
 
-(let [red (r 76 91) 
+(let [red (r 75 91) 
 	  blue (b 75 91)
 	  orange (o 75 91)
-	  yellow (y 77 91)
+	  yellow (y 78 91)
 	  green (g 75 91)
 	  purple (p 75 93)]
 	(set-hl :Search 	{:bg yellow})
@@ -53,7 +53,6 @@
 	(set-hl :Pmenu 		{:fg (w 0) :bg (w 93)})
 	(set-hl :StatusLine {:fg (w 0) :bg (w 93)})
 	(set-hl :LeapLabelPrimary {:bg purple}))
-
 
 ;  :CursorLine  
 ;  :QuickFixLine  
