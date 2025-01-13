@@ -42,4 +42,4 @@
 (require :options)
 (require :keymaps)
 (require :statusline)
-(require :colorscheme)
+(require :colors)

@@ -42,4 +42,4 @@ end
 require("options")
 require("keymaps")
 require("statusline")
-return require("colorscheme")
+return require("colors")
