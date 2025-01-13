@@ -23,11 +23,11 @@
 (fn o [s l] (hsl 39 s l))
 (fn y [s l] (hsl 60 s l))
 (fn g [s l] (hsl 120 s l))
-(fn b [s l] (hsl 200 s l))
+(fn b [s l] (hsl 210 s l))
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
-  (let [bw {:fg (w 0) :bg (w 100)}]
+  (let [bw {:fg (w 0) :bg (w 99.5)}]
   	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
 (fn reset-hl []
@@ -37,20 +37,22 @@
 
 (reset-hl)
 
-(let [yellow (y 72.5 89.5)]
+(let [red (r 75 91) 
+	  blue (b 75 91)
+	  yellow (y 75 91)]
 	(set-hl :Search 	{:bg yellow})
 	(set-hl :IncSearch 	{:bg yellow})
 	(set-hl :CurSearch 	{:bg yellow})
 	(set-hl :Visual 	{:bg yellow})
 	(set-hl :VisualNOS 	{:bg yellow})
-	(set-hl :MatchParen	{:fg (w 0) :bg (y 73 76)})
-	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 85.5)})
-	(set-hl :Pmenu 		{:fg (w 0) :bg (w 94)})
+	(set-hl :MatchParen	{:fg (w 0) :bg red})
+	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 85)})
+	(set-hl :Pmenu 		{:fg (w 0) :bg (w 93)})
 	(set-hl :StatusLine {:fg (w 0) :bg (w 91)})
-	(set-hl :LeapLabelPrimary {:fg (w 0) :bg (r 70 89)}))
+	(set-hl :LeapLabelPrimary {:bg blue}))
+
 
 ;  :CursorLine  
-;  :PmenuSel  
 ;  :QuickFixLine  
 ;  :Substitute  
 ;  :TabLineSel  
