@@ -27,7 +27,7 @@
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
-  (let [bw {:fg (w 0) :bg (w 99.5)}]
+  (let [bw {:fg (w 0) :bg (w 100)}]
   	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
 (fn reset-hl []
@@ -37,19 +37,21 @@
 
 (reset-hl)
 
-(let [red (r 75 91) 
+(let [red (r 75 90) 
 	  blue (b 75 91)
-	  yellow (y 75 91)]
+	  yellow (y 75 90)
+	  green (g 75 90)]
 	(set-hl :Search 	{:bg yellow})
 	(set-hl :IncSearch 	{:bg yellow})
 	(set-hl :CurSearch 	{:bg yellow})
 	(set-hl :Visual 	{:bg yellow})
 	(set-hl :VisualNOS 	{:bg yellow})
 	(set-hl :MatchParen	{:fg (w 0) :bg red})
-	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 85)})
+	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 84)})
 	(set-hl :Pmenu 		{:fg (w 0) :bg (w 93)})
 	(set-hl :StatusLine {:fg (w 0) :bg (w 91)})
 	(set-hl :LeapLabelPrimary {:bg blue}))
+
 
 
 ;  :CursorLine  
