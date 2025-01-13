@@ -43,9 +43,9 @@
 (set-hl :CurSearch 	{:bg (r 50 90)})
 (set-hl :Visual 	{:bg (y 57 90)})
 (set-hl :VisualNOS 	{:bg (y 57 90)})
-(set-hl :MatchParen {:fg (w 0) 	 :bg (y 61 81)})
-(set-hl :PmenuSel 	{:fg (w 100) :bg (b 41 58)})
-(set-hl :Pmenu 		{:fg (w 0) 	 :bg (b 80 92)})
+(set-hl :MatchParen	{:fg (w 0) :bg (y 61 81)})
+(set-hl :PmenuSel 	{:fg (w 0) :bg (w 88)})
+(set-hl :Pmenu 		{:fg (w 0) :bg (g 50 92)})
 
 ;(local rev [
 ;  :CursorLine  
