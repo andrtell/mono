@@ -37,12 +37,12 @@
 
 (reset-hl)
 
-(let [red (r 75 90) 
-	  blue (b 75 90)
-	  orange (o 75 90)
-	  yellow (y 76 90)
-	  green (g 75 90)
-	  purple (p 75 90)]
+(let [red (r 75 91) 
+	  blue (b 75 91)
+	  orange (o 75 91)
+	  yellow (y 76 91)
+	  green (g 75 91)
+	  purple (p 75 93)]
 	(set-hl :Search 	{:bg yellow})
 	(set-hl :IncSearch 	{:bg yellow})
 	(set-hl :CurSearch 	{:bg yellow})
@@ -65,6 +65,6 @@
 ;  :LspReferenceText  
 ;  :LspReferenceRead  
 ;  :LspReferenceWrite  
-;  :LspSignatureActiveParameter  
+;  :
 
 
