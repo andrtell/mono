@@ -19,7 +19,7 @@
 	(string.format "#%02x%02x%02x" r g b)))
 
 (local black "#000000")
-(local white "#fefefe")
+(local white "#fefefd")
 
 (fn set-hl [group opts] 
   (let [defaults {:fg black :bg white :force true}]
@@ -51,7 +51,7 @@
 
 (local bg
 	   { 
-	   :yellow 	(hsl 60 64 90) 
+	   :yellow 	(hsl 60 64 89) 
 	   :green 	(hsl 120 76 91) 
 	   ;; --
 	   :red 	(hsl 0 68 92) 
