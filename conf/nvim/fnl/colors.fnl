@@ -18,7 +18,7 @@
 		b (round (* 255 (f 4)))]
 	(string.format "#%02x%02x%02x" r g b)))
 
-(fn w [l] 	(hsl 0 0 l))
+(fn w [l] (hsl 0 0 l))
 (fn r [s l] (hsl 0 s l))
 (fn o [s l] (hsl 39 s l))
 (fn y [s l] (hsl 60 s l))
