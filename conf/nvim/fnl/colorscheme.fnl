@@ -27,7 +27,7 @@
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
-  (let [bw {:fg (w 0) :bg (w 100)}]
+  (let [bw {:fg (w 0) :bg (w 99.5)}]
   	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
 (fn reset-hl []
@@ -38,18 +38,18 @@
 
 (reset-hl)
 
-(let [yellow (y 72 91)]
-	(set-hl :search 	{:bg yellow})
-	(set-hl :incsearch 	{:bg yellow})
-	(set-hl :cursearch 	{:bg (r 68 89)})
-	(set-hl :visual 	{:bg yellow})
-	(set-hl :visualnos 	{:bg yellow})
-	(set-hl :matchparen	{:fg (w 0) :bg (y 80 82)})
-	(set-hl :pmenusel 	{:fg (w 0) :bg (w 87)})
-	(set-hl :pmenu 		{:fg (w 0) :bg (w 94)})
-	(set-hl :Statusline {:fg (w 0) :bg (w 90)}))
+(let [yellow (y 73 92)]
+	(set-hl :Search 	{:bg yellow})
+	(set-hl :IncSearch 	{:bg yellow})
+	(set-hl :CurSearch 	{:bg (r 67 89)})
+	(set-hl :Visual 	{:bg yellow})
+	(set-hl :VisualNOS 	{:bg yellow})
+	(set-hl :MatchParen	{:fg (w 0) :bg (y 80 80)})
+	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 86)})
+	(set-hl :Pmenu 		{:fg (w 0) :bg (w 94)})
+	(set-hl :StatusLine {:fg (w 0) :bg (w 90)}))
 
-;(local rev [
+
 ;  :CursorLine  
 ;  :PmenuSel  
 ;  :QuickFixLine  
@@ -63,9 +63,5 @@
 ;  :LspReferenceRead  
 ;  :LspReferenceWrite  
 ;  :LspSignatureActiveParameter  
-;])
-
-;(each [_ group (ipairs rev)]
-;	(set-hl group {:fg (w 100) :bg (w 0)}))
 
 
