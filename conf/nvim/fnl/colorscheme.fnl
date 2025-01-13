@@ -23,7 +23,7 @@
 (fn o [s l] (hsl 39 s l))
 (fn y [s l] (hsl 60 s l))
 (fn g [s l] (hsl 120 s l))
-(fn b [s l] (hsl 240 s l))
+(fn b [s l] (hsl 200 s l))
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
@@ -38,27 +38,30 @@
 
 (reset-hl)
 
-(set-hl :Search 	{:bg (r 62 92)})
-(set-hl :IncSearch 	{:bg (r 62 92)})
-(set-hl :Visual 	{:bg (y 62 92)})
-(set-hl :MatchParen {:fg (g 100 25) :reverse false})
-(set-hl :PmenuSel 	{:fg (w 100) :bg (w 35)})
+(set-hl :Search 	{:bg (y 57 90)})
+(set-hl :IncSearch 	{:bg (r 50 90)})
+(set-hl :CurSearch 	{:bg (r 50 90)})
+(set-hl :Visual 	{:bg (y 57 90)})
+(set-hl :VisualNOS 	{:bg (y 57 90)})
+(set-hl :MatchParen {:fg (w 0) 	 :bg (y 61 81)})
+(set-hl :PmenuSel 	{:fg (w 100) :bg (b 41 58)})
+(set-hl :Pmenu 		{:fg (w 0) 	 :bg (b 80 92)})
 
-(local rev [
-  :CursorLine  
-  :PmenuSel  
-  :QuickFixLine  
-  :Substitute  
-  :TabLineSel  
-  :TermCursor 0
-  :TermCursorNC  
-  :VisualNOS  
-  :WildMenu  
-  :LspReferenceText  
-  :LspReferenceRead  
-  :LspReferenceWrite  
-  :LspSignatureActiveParameter  
-])
+;(local rev [
+;  :CursorLine  
+;  :PmenuSel  
+;  :QuickFixLine  
+;  :Substitute  
+;  :TabLineSel  
+;  :TermCursor 0
+;  :TermCursorNC  
+;  :VisualNOS  
+;  :WildMenu  
+;  :LspReferenceText  
+;  :LspReferenceRead  
+;  :LspReferenceWrite  
+;  :LspSignatureActiveParameter  
+;])
 
 ;(each [_ group (ipairs rev)]
 ;	(set-hl group {:fg (w 100) :bg (w 0)}))
