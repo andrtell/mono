@@ -38,14 +38,16 @@
 
 (reset-hl)
 
-(set-hl :Search 	{:bg (y 57 90)})
-(set-hl :IncSearch 	{:bg (r 50 90)})
-(set-hl :CurSearch 	{:bg (r 50 90)})
-(set-hl :Visual 	{:bg (y 57 90)})
-(set-hl :VisualNOS 	{:bg (y 57 90)})
-(set-hl :MatchParen	{:fg (w 0) :bg (y 61 81)})
-(set-hl :PmenuSel 	{:fg (w 0) :bg (w 88)})
-(set-hl :Pmenu 		{:fg (w 0) :bg (g 50 92)})
+(let [yellow (y 72 91)]
+	(set-hl :search 	{:bg yellow})
+	(set-hl :incsearch 	{:bg yellow})
+	(set-hl :cursearch 	{:bg (r 68 89)})
+	(set-hl :visual 	{:bg yellow})
+	(set-hl :visualnos 	{:bg yellow})
+	(set-hl :matchparen	{:fg (w 0) :bg (y 80 82)})
+	(set-hl :pmenusel 	{:fg (w 0) :bg (w 87)})
+	(set-hl :pmenu 		{:fg (w 0) :bg (w 94)})
+	(set-hl :Statusline {:fg (w 0) :bg (w 90)}))
 
 ;(local rev [
 ;  :CursorLine  
