@@ -7,6 +7,7 @@
 		[:n "<C-j>" "<C-w><C-j>"]
 		[:n "<C-k>" "<C-w><C-k>"]
 		[:n "-" ":Ex<CR>"]
+		[:n "<BS>" ":nohl<CR>"]
 		;; LEAP
 		[:n "s" "<Plug>(leap)"]
 		[:n "S" "<Plug>(leap-from-window)"]
