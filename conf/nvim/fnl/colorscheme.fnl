@@ -18,52 +18,31 @@
 		b (round (* 255 (f 4)))]
 	(string.format "#%02x%02x%02x" r g b)))
 
-(local black "#000000")
-(local white "#fefefd")
+(fn w [l] 	(hsl 0 0 l))
+(fn r [s l] (hsl 0 s l))
+(fn o [s l] (hsl 39 s l))
+(fn y [s l] (hsl 60 s l))
+(fn g [s l] (hsl 120 s l))
+(fn b [s l] (hsl 240 s l))
+(fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
-  (let [defaults {:fg black :bg white :force true}]
-  	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {} defaults opts))))
+  (let [bw {:fg (w 0) :bg (w 100)}]
+  	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
-(local gray
-	   {
-	   10   (hsl 0  0  10)
-	   15   (hsl 0  0  15)
-	   20   (hsl 0  0  20)
-	   25   (hsl 0  0  25)
-	   30   (hsl 0  0  30)
-	   35   (hsl 0  0  35)
-	   40   (hsl 0  0  40)
-	   50   (hsl 0  0  50)
-	   90   (hsl 0  0  90)
-	   95   (hsl 0  0  95)
-	   })
+(fn reset-hl []
+  (let [all_groups (vim.api.nvim_get_hl 0 {})]
+	(each [group _ (pairs all_groups)]
+	  (let [string? (= (type group) "string")]
+		(if string? (set-hl group {}))))))
 
-(local fg
-	   {
-	   :red 	(hsl 0   100 50) 
-	   :orange 	(hsl 39  100 50)
-	   :yellow 	(hsl 60  100 50)
-	   :green 	(hsl 120 100 25)
-	   :blue 	(hsl 240 100 50)
-	   :purple  (hsl 300 100 50)
-	   })
+(reset-hl)
 
-(local bg
-	   { 
-	   :yellow 	(hsl 60 64 89) 
-	   :green 	(hsl 120 76 91) 
-	   ;; --
-	   :red 	(hsl 0 68 92) 
-	   :orange 	(hsl 39 68 88) 
-	   :blue 	(hsl 240 68 88) 
-	   })
-
-
-(let [all_groups (vim.api.nvim_get_hl 0 {})]
-  (each [group _ (pairs all_groups)]
-	(let [string? (= (type group) "string")]
-	  (if string? (set-hl group {})))))
+(set-hl :Search 	{:bg (r 62 92)})
+(set-hl :IncSearch 	{:bg (r 62 92)})
+(set-hl :Visual 	{:bg (y 62 92)})
+(set-hl :MatchParen {:fg (g 100 25) :reverse false})
+(set-hl :PmenuSel 	{:fg (w 100) :bg (w 35)})
 
 (local rev [
   :CursorLine  
@@ -71,7 +50,7 @@
   :QuickFixLine  
   :Substitute  
   :TabLineSel  
-  :TermCursor  
+  :TermCursor 0
   :TermCursorNC  
   :VisualNOS  
   :WildMenu  
@@ -81,15 +60,7 @@
   :LspSignatureActiveParameter  
 ])
 
-(each [_ group (ipairs rev)]
-	(set-hl group {:fg white :bg black :force true}))
-
-(set-hl :Search 	{:bg bg.yellow})
-(set-hl :IncSearch 	{:bg bg.yellow})
-(set-hl :Visual 	{:bg bg.yellow})
-(set-hl :MatchParen {:fg fg.green :reverse false})
-
-(set-hl :Cursor {:fg white :bg (. gray 10)})
-(set-hl :PmenuSel {:fg white :bg (. gray 35)})
+;(each [_ group (ipairs rev)]
+;	(set-hl group {:fg (w 100) :bg (w 0)}))
 
 
