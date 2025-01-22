@@ -40,10 +40,10 @@
 (let [red (r 75 91) 
 	  blue (b 75 91)
 	  orange (o 80 93)
-	  yellow (y 83 92)
+	  yellow (y 90 92)
 	  green (g 75 91)
 	  purple (p 75 93)]
-	(set-hl :Search 	{:bg (w 90)})
+	(set-hl :Search 	{:bg (w 93)})
 	(set-hl :IncSearch 	{:bg purple})
 	(set-hl :CurSearch 	{:bg purple})
 	(set-hl :Visual 	{:bg yellow})
