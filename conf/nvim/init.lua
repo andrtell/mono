@@ -42,4 +42,5 @@ end
 require("options")
 require("keymaps")
 require("statusline")
-return require("colors")
+require("colors")
+return require("opam")
