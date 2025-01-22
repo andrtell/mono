@@ -27,7 +27,7 @@
 (fn p [s l] (hsl 300 s l))
 
 (fn set-hl [group opts] 
-  (let [bw {:fg (w 0) :bg (w 100)}]
+  (let [bw {:fg (w 0) :bg (w 99.5)}]
   	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
 (fn reset-hl []
@@ -37,22 +37,33 @@
 
 (reset-hl)
 
-(let [red (r 75 91) 
+(let [gray (w 93)
+	  red (r 75 91) 
 	  blue (b 75 91)
-	  orange (o 80 93)
-	  yellow (y 90 92)
-	  green (g 75 91)
+	  orange (o 82 92)
+	  yellow (y 77 91)
+	  green (g 95 95)
 	  purple (p 75 93)]
-	(set-hl :Search 	{:bg (w 93)})
-	(set-hl :IncSearch 	{:bg purple})
-	(set-hl :CurSearch 	{:bg purple})
+	(set-hl :Search 	{:bg orange})
+	(set-hl :IncSearch 	{:bg orange})
+	(set-hl :CurSearch 	{:bg orange})
 	(set-hl :Visual 	{:bg yellow})
 	(set-hl :VisualNOS 	{:bg yellow})
 	(set-hl :MatchParen	{:fg (w 0) :bg red})
 	(set-hl :PmenuSel 	{:fg (w 0) :bg blue})
-	(set-hl :Pmenu 		{:fg (w 0) :bg (w 93)})
-	(set-hl :StatusLine {:fg (w 0) :bg (w 93)})
+	(set-hl :Pmenu 		{:fg (w 0) :bg gray})
+	(set-hl :StatusLine {:fg (w 0) :bg gray})
 	(set-hl :LeapLabelPrimary {:bg purple}))
+
+;(let [red (r 75 91) 
+;	  blue (b 75 91)
+;	  orange (o 80 93)
+;	  yellow (y 90 92)
+;	  green (g 96 20)
+;	  purple (p 75 93)]
+;	(set-hl "@string" 	{:fg green})
+;	)
+
 
 ;  :CursorLine  
 ;  :QuickFixLine  
