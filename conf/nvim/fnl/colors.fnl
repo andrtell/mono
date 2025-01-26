@@ -39,15 +39,15 @@
 
 (let [gray (w 93)
 	  red (r 75 91) 
-	  blue (b 75 91)
+	  blue (b 76 94)
 	  orange (o 82 92)
-	  yellow (y 77 91)
+	  yellow (y 80 90)
 	  green (g 95 95)
 	  purple (p 75 93)]
 	(set-hl :Search 	{:bg orange})
 	(set-hl :IncSearch 	{:bg orange})
 	(set-hl :CurSearch 	{:bg orange})
-	(set-hl :Visual 	{:bg yellow})
+	(set-hl :Visual 	{:bg blue})
 	(set-hl :VisualNOS 	{:bg yellow})
 	(set-hl :MatchParen	{:fg (w 0) :bg red})
 	(set-hl :PmenuSel 	{:fg (w 0) :bg blue})
