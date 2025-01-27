@@ -43,4 +43,4 @@
 (require :keymaps)
 (require :statusline)
 (require :colors)
-(require :opam)
+(require :netrw)

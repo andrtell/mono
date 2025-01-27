@@ -1,5 +1,5 @@
 (local keys
-	   [[:n "<ESC>" ":nohl<CR><ESC>"] 
+	   [[:n "<BS>" ":nohl<CR>"] 
 		[:i "jk" "<ESC>"] 
 		[:n "<C-h>" "<C-w><C-h>"]
 		[:n "<C-l>" "<C-w><C-l>"]
