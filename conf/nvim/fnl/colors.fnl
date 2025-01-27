@@ -58,26 +58,6 @@
 	(set-hl :endofbuffer {:fg (w 99.5)})
 	)
 
-;(let [red (r 75 91) 
-;	  blue (b 75 91)
-;	  orange (o 80 93)
-;	  yellow (y 90 92)
-;	  green (g 96 20)
-;	  purple (p 75 93)]
-;	(set-hl "@string" 	{:fg green})
-;	)
-
-
-;  :CursorLine  
-;  :QuickFixLine  
-;  :Substitute  
-;  :TabLineSel  
-;  :TermCursor 0
-;  :TermCursorNC  
-;  :VisualNOS  
-;  :WildMenu  
-;  :LspReferenceText  
-;  :LspReferenceRead  
-;  :LspReferenceWrite  
-;  :
-
+(let [red (r 87 95)]
+	(set-hl :DiagnosticUnderlineError 	{:bg red})
+	)

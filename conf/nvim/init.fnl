@@ -44,3 +44,4 @@
 (require :statusline)
 (require :colors)
 (require :netrw)
+(require :diagnostic)
