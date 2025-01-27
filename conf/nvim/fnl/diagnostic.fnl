@@ -7,6 +7,7 @@
 (set vim.diagnostic.handlers.underline
   {:show (fn [_ bufnr d o] 
 		   (each [i _ (ipairs d)] 
-			 (tset d i :end_col (+ (. d i :end_col) 1))) 
+			 (if (= (. d i :end_col) (. d i :col))
+			 	(tset d i :end_col (+ (. d i :end_col) 1))))
 		   (show ns bufnr d o))
    :hide (fn [_ bufnr] (hide ns bufnr))})

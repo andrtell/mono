@@ -37,10 +37,10 @@
 
 (reset-hl)
 
-(let [gray (w 93)
-	  red (r 75 91) 
-	  blue (b 76 94)
-	  orange (o 82 92)
+(let [gray (w 94)
+	  red (r 77 92) 
+	  blue (b 76 93)
+	  orange (o 88 92)
 	  yellow (y 78 87)
 	  green (g 95 95)
 	  purple (p 75 93)]
@@ -50,14 +50,11 @@
 	(set-hl :Visual 	{:bg blue})
 	(set-hl :VisualNOS 	{:bg yellow})
 	(set-hl :MatchParen	{:fg (w 0) :bg red})
-	(set-hl :PmenuSel 	{:fg (w 0) :bg yellow})
+	(set-hl :PmenuSel 	{:fg (w 0) :bg (w 85)})
 	(set-hl :Pmenu 		{:fg (w 0) :bg gray})
 	(set-hl :StatusLine {:fg (w 0) :bg gray})
 	(set-hl :LeapLabelPrimary {:bg purple})
 	(set-hl :netrwMarkFile {:bg yellow})
 	(set-hl :endofbuffer {:fg (w 99.5)})
-	)
-
-(let [red (r 87 95)]
-	(set-hl :DiagnosticUnderlineError 	{:bg red})
+	(set-hl :DiagnosticUnderlineError {:bg red})
 	)
