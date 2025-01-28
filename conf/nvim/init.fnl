@@ -34,7 +34,8 @@
 (local config {:root packages-dir
 	   		   :lockfile (.. packages-dir "/lazy-lock.json")
 			   :spec [{ 1 "Olical/nfnl" :ft "fennel" } {:import "spec"}]
-			   :checker {:enabled false }
+			   ;:checker {:enabled false}
+			   :change_detection {:notify false}
 			   :install {:colorscheme [ "binary" ] }})
 
 (let [lazy (require :lazy)] (lazy.setup config))
