@@ -99,7 +99,9 @@
 	   :buffer bufnr
 	   :callback (S.event-handler client.id)}))
 
+(fn S.config []
+  (let [lspconfig (require "lspconfig")]
+	(lspconfig.gopls.setup {:on_attach S.on-attach})))
+
 {1 "neovim/nvim-lspconfig"
- :config (fn [] 
-		   (let [lspconfig (require "lspconfig")]
-			 (lspconfig.gopls.setup {:on_attach S.on-attach})))}
+ :config S.config} 
