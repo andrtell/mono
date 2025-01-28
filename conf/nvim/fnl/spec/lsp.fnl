@@ -55,30 +55,31 @@
   (let [client (vim.lsp.get_client_by_id client-id)]
 	(client.request method params handler bufnr)))
 
-(fn S.save-format [res ctx]
-	(if (not= 0 (vim.fn.bufexists ctx.bufnr)) 
+(fn S.save-format [res bufnr]
+	(if (not= 0 (vim.fn.bufexists bufnr)) 
 		(do 
-		  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
-			  (vim.fn.bufload ctx.bufnr))
-		  (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
-		  (if (= ctx.bufnr (vim.api.nvim_get_current_buf))
+		  (if (not (vim.api.nvim_buf_is_loaded bufnr))
+			  (vim.fn.bufload bufnr))
+		  (vim.lsp.util.apply_text_edits res bufnr "utf-16")
+		  (if (= bufnr (vim.api.nvim_get_current_buf))
 			  (vim.cmd "update")))))
 
-(fn S.handle-format [err res ctx]
-  (case [err res ctx]
+(fn S.handle-format [err result ctx]
+  (case [err result ctx]
 	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
-	[_ res ctx] (S.save-format)))
+	[_ result ctx] (S.save-format result ctx.bufnr)))
 
-(fn S.request-format [handler client-id bufnr]
-  (let [params (vim.lsp.util.make_formatting_params)]
+(fn S.request-format [handler]
+  (let [params (vim.lsp.util.make_formatting_params)
+		[_ _ client-id bufnr] (S.job-que.peek)]
 	(S.request handler "textDocument/formatting" params client-id bufnr)))
 
 (fn S.run-job []
-  (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (S.run-job)))]
+  (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (S.job-que.pop) (S.run-job)))]
 	(if (S.job-que.nil?)
 		nil
-		(case (S.job-que.pop)
-		  [requester handler client-id bufnr] (requester (rec handler) client-id bufnr)))))
+		(case (S.job-que.peek)
+		  [requester handler _ _] (requester (rec handler))))))
 
 (fn S.on-event [client-id]
   (fn [args]
@@ -87,7 +88,7 @@
 	(S.run-job) 
 	nil))
 
-(set S.group (vim.api.nvim_create_augroup "format-lsp" {:clear false}))
+(set S.group (vim.api.nvim_create_augroup "LSP" {:clear false}))
 
 (fn S.on-attach [client bufnr]
   (vim.api.nvim_clear_autocmds {:group S.group :buffer bufnr})
