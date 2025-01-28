@@ -55,16 +55,19 @@
   (let [client (vim.lsp.get_client_by_id client-id)]
 	(client.request method params handler bufnr)))
 
+(fn S.save-format [res ctx]
+	(if (not= 0 (vim.fn.bufexists ctx.bufnr)) 
+		(do 
+		  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
+			  (vim.fn.bufload ctx.bufnr))
+		  (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
+		  (if (= ctx.bufnr (vim.api.nvim_get_current_buf))
+			  (vim.cmd "update")))))
+
 (fn S.handle-format [err res ctx]
   (case [err res ctx]
 	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
-	[_ res ctx] (if (not= 0 (vim.fn.bufexists ctx.bufnr))
-					(do 
-					  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
-						  (vim.fn.bufload ctx.bufnr))
-					  (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
-					  (if (= ctx.bufnr (vim.api.nvim_get_current_buf))
-						  (vim.cmd "update"))))))
+	[_ res ctx] (S.save-format)))
 
 (fn S.request-format [handler client-id bufnr]
   (let [params (vim.lsp.util.make_formatting_params)]
