@@ -93,8 +93,11 @@
 
 (fn S.on-attach [client bufnr]
 	(vim.api.nvim_clear_autocmds {:group S.group :buffer bufnr})
-	(let [opts {:group S.group :buffer bufnr :callback (S.event-handler client.id)}]
-	  (vim.api.nvim_create_autocmd "BufWritePost" opts)))
+  	(vim.api.nvim_create_autocmd 
+	  "BufWritePost" 
+	  {:group S.group 
+	   :buffer bufnr
+	   :callback (S.event-handler client.id)}))
 
 {1 "neovim/nvim-lspconfig"
  :config (fn [] (let [lspconfig (require "lspconfig")] 
