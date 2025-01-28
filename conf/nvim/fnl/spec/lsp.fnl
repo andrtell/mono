@@ -81,18 +81,18 @@
   (fn [args]
 	(S.job-que.push [S.request-format S.handle-format client-id args.buf])
 	;(S.job-que.push [:code-actions client-id args.buf])
-	(S.run-job)
+	(S.run-job) 
 	nil))
 
 (set S.group (vim.api.nvim_create_augroup "format-lsp" {:clear false}))
 
 (fn S.on-attach [client bufnr]
-	(vim.api.nvim_clear_autocmds {:group S.group :buffer bufnr})
-  	(vim.api.nvim_create_autocmd 
-	  "BufWritePost" 
-	  {:group S.group 
-	   :buffer bufnr
-	   :callback (S.on-event client.id)}))
+  (vim.api.nvim_clear_autocmds {:group S.group :buffer bufnr})
+  (vim.api.nvim_create_autocmd 
+	"BufWritePost"
+	{:group S.group 
+	 :buffer bufnr
+	 :callback (S.on-event client.id)}))
 
 (fn S.config []
   (let [lspconfig (require "lspconfig")]
