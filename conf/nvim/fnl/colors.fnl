@@ -38,11 +38,11 @@
 (reset-hl)
 
 (let [gray (w 94)
-	  red (r 77 92) 
-	  blue (b 76 93)
-	  orange (o 88 92)
-	  yellow (y 78 87)
-	  green (g 95 95)
+	  red (r 75 94) 
+	  blue (b 75 93)
+	  orange (o 75 91)
+	  yellow (y 75 87)
+	  green (g 76 91)
 	  purple (p 75 93)]
 	(set-hl :Search 	{:bg orange})
 	(set-hl :IncSearch 	{:bg orange})
@@ -57,4 +57,6 @@
 	(set-hl :netrwMarkFile {:bg yellow})
 	(set-hl :endofbuffer {:fg (w 99.5)})
 	(set-hl :DiagnosticUnderlineError {:bg red})
+	(set-hl :Comment {:fg (w 34)})
+	(set-hl "@comment" {:fg (w 34)})
 	)
