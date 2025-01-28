@@ -28,20 +28,34 @@
 
 (set S.job-que (S.mk-que 10))
 
-(fn S.client-request [client-id bufnr method params callback]
+;(fn S.buffer-imports [client-id bufnr callback]
+;  (let [params (vim.lsp.util.make_range_params)]
+;	(set params.context {:source {:organizeImports true}})
+;	(S.client-request client-id bufnr "textDocument/codeAction" params callback)))
+;
+;
+;(fn S.handle-buffer-imports [err res ctx]
+;  (print "called: S.handle-buffer-imports")
+;  (case [err res ctx]
+;	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
+;	[_ res ctx] (if (not= 0 (vim.fn.bufexists ctx.bufnr))
+;					(do 
+;					  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
+;						  (vim.fn.bufload ctx.bufnr))
+;					  (each [_ result (pairs res)]
+;						(each [_ action (pairs result)]
+;						  (print action)))
+;
+;					  ))))
+;					  ;; (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
+;					  ;(if (= ctx.bufnr (vim.api.nvim_get_current_buf))
+;					  ; (vim.cmd "update"))))))
+
+(fn S.request [handler method params client-id bufnr]
   (let [client (vim.lsp.get_client_by_id client-id)]
-	(client.request method params callback bufnr)))
+	(client.request method params handler bufnr)))
 
-(fn S.buffer-format [client-id bufnr callback]
-  (let [params (vim.lsp.util.make_formatting_params)]
-	(S.client-request client-id bufnr "textDocument/formatting" params callback)))
-
-(fn S.buffer-imports [client-id bufnr callback]
-  (let [params (vim.lsp.util.make_range_params)]
-	(set params.context {:source {:organizeImports true}})
-	(S.client-request client-id bufnr "textDocument/codeAction" params callback)))
-
-(fn S.handle-text-edits [err res ctx]
+(fn S.handle-format [err res ctx]
   (case [err res ctx]
 	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
 	[_ res ctx] (if (not= 0 (vim.fn.bufexists ctx.bufnr))
@@ -52,40 +66,21 @@
 					  (if (= ctx.bufnr (vim.api.nvim_get_current_buf))
 						  (vim.cmd "update"))))))
 
-(fn S.handle-buffer-imports [err res ctx]
-  (print "called: S.handle-buffer-imports")
-  (case [err res ctx]
-	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
-	[_ res ctx] (if (not= 0 (vim.fn.bufexists ctx.bufnr))
-					(do 
-					  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
-						  (vim.fn.bufload ctx.bufnr))
-					  (each [_ result (pairs res)]
-						(each [_ action (pairs result)]
-						  (print action)))
-						
-					  ))))
-					  ;; (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
-					  ;(if (= ctx.bufnr (vim.api.nvim_get_current_buf))
-					  ; (vim.cmd "update"))))))
+(fn S.request-format [handler client-id bufnr]
+  (let [params (vim.lsp.util.make_formatting_params)]
+	(S.request handler "textDocument/formatting" params client-id bufnr)))
 
 (fn S.run-job []
-  (let [rec-buffer-format (fn [err res ctx]
-			  (S.handle-text-edits err res ctx)
-			  (vim.schedule S.run-job))
-		rec-buffer-imports (fn [err res ctx]
-			  (S.handle-buffer-imports err res ctx)
-			  (vim.schedule S.run-job))]
-	  (if (S.job-que.nil?)
-		  nil
-		  (case (S.job-que.pop)
-			[:format client-id bufnr] (S.buffer-format client-id bufnr rec-buffer-format)
-			[:imports client-id bufnr] (S.buffer-imports client-id bufnr rec-buffer-imports)))))
+  (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (S.run-job)))]
+	(if (S.job-que.nil?)
+		nil
+		(case (S.job-que.pop)
+		  [requester handler client-id bufnr] (requester (rec handler) client-id bufnr)))))
 
-(fn S.event-handler [client-id]
+(fn S.on-event [client-id]
   (fn [args]
-	(S.job-que.push [:format client-id args.buf])
-	(S.job-que.push [:imports client-id args.buf])
+	(S.job-que.push [S.request-format S.handle-format client-id args.buf])
+	;(S.job-que.push [:code-actions client-id args.buf])
 	(S.run-job)
 	nil))
 
@@ -97,7 +92,7 @@
 	  "BufWritePost" 
 	  {:group S.group 
 	   :buffer bufnr
-	   :callback (S.event-handler client.id)}))
+	   :callback (S.on-event client.id)}))
 
 (fn S.config []
   (let [lspconfig (require "lspconfig")]
