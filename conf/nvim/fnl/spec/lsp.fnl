@@ -1,33 +1,68 @@
-(fn get-bufnr [] 
-  (vim.api.nvim_get_current_buf))
+;(fn event-handler [args]
+;  (let [buffer-id args.buf] 
+;	(each [_ client (ipairs (vim.lsp.get_clients {:bufnr args.buf}))]
+;	 (if (client.supports_method "textDocument/formatting" {:bufnr buffer-id})
+;	  (let [params (vim.lsp.util.make_formatting_params)]
+;		(client.request "textDocument/formatting" params request-handler buffer-id)))))
 
-(fn new-auto-grp [name bufnr]
-  (vim.api.nvim_create_augroup name {:clear false}))
+;(fn request-go-format [client buffer-id callback]
+;  (let [params (vim.lsp.util.make_formatting_params)]
+;	(client.request "textDocument/formatting" params callback buffer-id)))
+;
+;(fn request-go-imports [client buffer-id callback]
+;  (let [params (vim.lsp.util.make_range_params)]
+;	(set params.context {:source {:organizeImports true}})
+;	(client.request "textDocument/codeAction" params callback buffer-id)))
 
-(fn clr-auto-grp [gid bufnr]
-  (vim.api.nvim_clear_autocmds {:group gid
-							    :buffer bufnr}))
+(fn new-ring-buffer [size]
+	(var q-cap size)
+	(var q-len 0)
+	(var q-fst 1)
+	(var q-lst 1)
+	(var q-buf [])
+	{:push (fn [val]
+			 (tset q-buf q-lst val)
+			 (set q-lst (-> q-lst (% q-cap) (+ 1))) 
+			 (if (< q-len q-cap)
+				 (set q-len (+ q-len 1))
+				 (set q-fst (-> q-fst (% q-cap) (+ 1)))))
+	 :data (fn [] q-buf)
+	 :peek (fn [] (. q-buf q-fst))
+	 :nil? (fn [] (= q-len 0))
+	 :pop  (fn []
+			 (if (= q-len 0)
+				 nil
+				 (let [val (. q-buf q-fst)]
+				   (tset q-buf q-fst nil)
+				   (set q-fst (-> q-fst (% q-cap) (+ 1)))
+				   (set q-len (- q-len 1))
+				   val)))
+	})
 
-(fn new-auto-cmd [ev gid bufnr cb]
-  (vim.api.nvim_create_autocmd ev {:group gid 
-							   	   :buffer bufnr
-								   :callback cb}))
+(local TASKS (new-ring-buffer 4))
 
-(fn result-handler [err result ctx]
+(fn request-handler [err result ctx]
   (case [err result ctx]
-	[nil result ctx] (print "OK")
-	[err _ _] (print "error")))
+	[nil result ctx] (print "LSP REQUEST OK")
+	[err _ _] (print "LSP REQUEST ERROR")))
+
 
 (fn event-handler [args]
-  (let [method "textDocument/formatting"]
+  (let [buffer-id args.buf] 
 	(each [_ client (ipairs (vim.lsp.get_clients {:bufnr args.buf}))]
-	  (if (client.supports_method method {:bufnr args.buf})
-	   (client.request method (vim.lsp.util.make_formatting_params) result-handler args.buf)))))
+	 (if (client.supports_method "textDocument/formatting" {:bufnr buffer-id})
+	  (let [params (vim.lsp.util.make_formatting_params)]
+		(client.request "textDocument/formatting" params request-handler buffer-id))))))
 
-(fn on-attach [client bufnr]
-  (let [gid (new-auto-grp "lsp-format" bufnr)]
-	(clr-auto-grp gid bufnr)
-	(new-auto-cmd "BufWritePost" gid bufnr event-handler)))
+(local group-id (vim.api.nvim_create_augroup "LSP" {:clear false}))
+
+(fn on-attach [client buffer-id]
+	(vim.api.nvim_clear_autocmds {:group group-id :buffer buffer-id})
+  	(vim.api.nvim_create_autocmd 
+	  "BufWritePost" 
+	  {:group group-id
+	   :buffer buffer-id 
+	   :callback event-handler}))
 
 {1 "neovim/nvim-lspconfig"
  :config (fn [] (let [lspconfig (require "lspconfig")] 
