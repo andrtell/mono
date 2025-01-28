@@ -76,10 +76,7 @@
 
 (fn S.run-job []
   (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (S.job-que.pop) (S.run-job)))]
-	(if (S.job-que.nil?)
-		nil
-		(case (S.job-que.peek)
-		  [requester handler _ _] (requester (rec handler))))))
+	(if (S.job-que.nil?) nil (case (S.job-que.peek) [requester handler _ _] (requester (rec handler))))))
 
 (fn S.on-event [client-id]
   (fn [args]
