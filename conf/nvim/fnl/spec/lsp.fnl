@@ -66,11 +66,11 @@
 (fn S.buffer-loaded? [bufnr]
   (vim.api.nvim_buf_is_loaded bufnr))
 
-(fn S.buffer-untouched? [bufnr]
+(fn S.buffer-unchanged? [bufnr]
   (= (vim.api.nvim_buf_get_var bufnr "jobtick") (vim.api.nvim_buf_get_var bufnr "changedtick")))
 
 (fn S.edit-ok? [bufnr]
-  (and (S.buffer-exists? bufnr) (S.buffer-loaded? bufnr) (S.buffer-untouched? bufnr)))
+  (and (S.buffer-exists? bufnr) (S.buffer-loaded? bufnr) (S.buffer-unchanged? bufnr)))
 
 (fn S.update-jobtick [bufnr]
   (vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick")))
