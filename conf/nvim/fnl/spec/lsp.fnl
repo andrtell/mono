@@ -61,10 +61,14 @@
 
 (fn S.save-format [res bufnr]
   (when (and (not= 0 (vim.fn.bufexists bufnr))
-			 (vim.api.nvim_buf_is_loaded bufnr))
+			 (vim.api.nvim_buf_is_loaded bufnr)
+			 (= (vim.api.nvim_buf_get_var bufnr "jobtick")
+				(vim.api.nvim_buf_get_var bufnr "changedtick")))
 	(vim.lsp.util.apply_text_edits res bufnr "utf-16")
-	(if (= bufnr (vim.api.nvim_get_current_buf))
-		(vim.cmd "noa update"))))
+	(when (= bufnr (vim.api.nvim_get_current_buf))
+		  (vim.cmd "noa update")
+		  (let [changedtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
+			(vim.api.nvim_buf_set_var bufnr "jobtick" changedtick)))))
 
 (fn S.handle-format [err result ctx]
   (case [err result ctx]
@@ -77,15 +81,17 @@
 
 (fn S.run-jobs [jobs]
   (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (vim.schedule (fn [] (S.run-jobs jobs)))))]
-	(if (jobs.nil?) nil (case (jobs.pop) [requester handler client-id bufnr _] (requester (rec handler) client-id bufnr)))))
+	(if (jobs.nil?) nil (case (jobs.pop) [requester handler client-id bufnr] (requester (rec handler) client-id bufnr)))))
 
 (fn S.on-event [client-id]
   (fn [args]
 	(let [bufnr args.buf
 		  jobs (. S.jobs bufnr)
+		  run? (jobs.nil?)
 		  tick (vim.api.nvim_buf_get_var bufnr "changedtick")]
-		(jobs.push [S.request-format S.handle-format client-id bufnr tick]) 
-		(S.run-jobs jobs))
+	  	(vim.api.nvim_buf_set_var bufnr "jobtick" tick)
+		(jobs.push [S.request-format S.handle-format client-id bufnr]) 
+		(if run? (S.run-jobs jobs)))
 	nil))
 
 (set S.group (vim.api.nvim_create_augroup "LSP" {:clear false}))
