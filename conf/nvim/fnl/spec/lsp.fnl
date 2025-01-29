@@ -60,15 +60,17 @@
 	(client.request method params handler bufnr)))
 
 (fn S.save-format [res bufnr]
-  (when (and (not= 0 (vim.fn.bufexists bufnr))
-			 (vim.api.nvim_buf_is_loaded bufnr)
-			 (= (vim.api.nvim_buf_get_var bufnr "jobtick")
-				(vim.api.nvim_buf_get_var bufnr "changedtick")))
+  (when 
+	(and 
+	  (not= 0 (vim.fn.bufexists bufnr)) 
+	  (vim.api.nvim_buf_is_loaded bufnr) 
+	  (= (vim.api.nvim_buf_get_var bufnr "jobtick")
+		 (vim.api.nvim_buf_get_var bufnr "changedtick")))
 	(vim.lsp.util.apply_text_edits res bufnr "utf-16")
 	(when (= bufnr (vim.api.nvim_get_current_buf))
-		  (vim.cmd "noa update")
-		  (let [changedtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
-			(vim.api.nvim_buf_set_var bufnr "jobtick" changedtick)))))
+	  (vim.cmd "noa update")
+	  (let [changedtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
+		(vim.api.nvim_buf_set_var bufnr "jobtick" changedtick)))))
 
 (fn S.handle-format [err result ctx]
   (case [err result ctx]
