@@ -1,32 +1,32 @@
 (local S {})
 
 (fn S.mk-que [size]
-	(var q-cap size)
-	(var q-len 0)
-	(var q-fst 1)
-	(var q-lst 1)
-	(var q-buf [])
-	{:push
-	 (fn [val]
-	   (tset q-buf q-lst val)
-	   (set q-lst (-> q-lst (% q-cap) (+ 1)))
-	   (if (< q-len q-cap)
-		   (set q-len (+ q-len 1))
-		   (set q-fst (-> q-fst (% q-cap) (+ 1)))))
-	 :data (fn [] q-buf)
-	 :peek (fn [] (. q-buf q-fst))
-	 :nil? (fn [] (= q-len 0))
-	 :len  (fn [] q-len)
-	 :pop 
-	 (fn []
-	   (if (= q-len 0)
-		   nil
-		   (let [val (. q-buf q-fst)]
-			 (tset q-buf q-fst nil)
-			 (set q-fst (-> q-fst (% q-cap) (+ 1)))
-			 (set q-len (- q-len 1)) 
-			 val)))
-	})
+  (var q-cap size)
+  (var q-len 0)
+  (var q-fst 1)
+  (var q-lst 1)
+  (var q-buf [])
+  {:push
+  (fn [val]
+	(tset q-buf q-lst val)
+	(set q-lst (-> q-lst (% q-cap) (+ 1)))
+	(if (< q-len q-cap)
+		(set q-len (+ q-len 1))
+		(set q-fst (-> q-fst (% q-cap) (+ 1)))))
+  :data (fn [] q-buf)
+  :peek (fn [] (. q-buf q-fst))
+  :nil? (fn [] (= q-len 0))
+  :len  (fn [] q-len)
+  :pop 
+  (fn []
+	(if (= q-len 0)
+		nil
+		(let [val (. q-buf q-fst)]
+		  (tset q-buf q-fst nil)
+		  (set q-fst (-> q-fst (% q-cap) (+ 1)))
+		  (set q-len (- q-len 1)) 
+		  val)))
+  })
 
 (set S.jobs {})
 
@@ -61,18 +61,18 @@
 
 (fn S.save-ok? [bufnr]
   (let [exists? (not= 0 (vim.fn.bufexists bufnr))
-		loaded? (vim.api.nvim_buf_is_loaded bufnr)
-		jobtick (vim.api.nvim_buf_get_var bufnr "jobtick")
-		chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")
-		virgin? (= jobtick chgtick)
-		active? (= bufnr (vim.api.nvim_get_current_buf))]
+				loaded? (vim.api.nvim_buf_is_loaded bufnr)
+				jobtick (vim.api.nvim_buf_get_var bufnr "jobtick")
+				chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")
+				virgin? (= jobtick chgtick)
+				active? (= bufnr (vim.api.nvim_get_current_buf))]
 	(and exists? loaded? virgin? active?)))
 
 (fn S.save-format [res bufnr]
-	(when (S.save-ok? bufnr)
-	  (vim.lsp.util.apply_text_edits res bufnr "utf-16")
-	  (vim.cmd "noa update")
-	  (vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick"))))
+  (when (S.save-ok? bufnr)
+	(vim.lsp.util.apply_text_edits res bufnr "utf-16")
+	(vim.cmd "noa update")
+	(vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick"))))
 
 (fn S.handle-format [err result ctx]
   (case [err result ctx]
@@ -90,12 +90,12 @@
 (fn S.on-event [client-id]
   (fn [args]
 	(let [bufnr args.buf
-		  jobs (. S.jobs bufnr)
-		  run? (jobs.nil?)
-		  chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
-		(jobs.push [S.request-format S.handle-format client-id bufnr]) 
-	  	(vim.api.nvim_buf_set_var bufnr "jobtick" chgtick)
-		(if run? (S.run-jobs jobs)))
+				jobs (. S.jobs bufnr)
+				run? (jobs.nil?)
+				chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
+	  (jobs.push [S.request-format S.handle-format client-id bufnr]) 
+	  (vim.api.nvim_buf_set_var bufnr "jobtick" chgtick)
+	  (if run? (S.run-jobs jobs)))
 	nil))
 
 (set S.group (vim.api.nvim_create_augroup "LSP" {:clear false}))
@@ -106,12 +106,12 @@
   (vim.api.nvim_create_autocmd 
 	"BufWritePost"
 	{:group S.group 
-	 :buffer bufnr
-	 :callback (S.on-event client.id)}))
+	:buffer bufnr
+	:callback (S.on-event client.id)}))
 
 (fn S.config []
   (let [lspconfig (require "lspconfig")]
 	(lspconfig.gopls.setup {:on_attach S.on-attach})))
 
 {1 "neovim/nvim-lspconfig"
- :config S.config} 
+:config S.config} 
