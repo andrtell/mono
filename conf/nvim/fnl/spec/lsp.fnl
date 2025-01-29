@@ -53,7 +53,7 @@
 ;					  ;(if (= ctx.bufnr (vim.api.nvim_get_current_buf))
 ;					  ; (vim.cmd "update"))))))
 
-(fn S.request [handler method params client-id bufnr]
+(fn S.client-request [handler method params client-id bufnr]
   (let [client (vim.lsp.get_client_by_id client-id)]
 	(client.request method params handler bufnr)))
 
@@ -69,8 +69,12 @@
 (fn S.buffer-unchanged? [bufnr]
   (= (vim.api.nvim_buf_get_var bufnr "jobtick") (vim.api.nvim_buf_get_var bufnr "changedtick")))
 
+(fn S.buffer-insert-mode? [bufnr]
+  (let [mode (vim.api.nvim_get_mode)]
+	(vim.startswith mode.mode "i")))
+
 (fn S.edit-ok? [bufnr]
-  (and (S.buffer-exists? bufnr) (S.buffer-loaded? bufnr) (S.buffer-unchanged? bufnr)))
+  (and (S.buffer-exists? bufnr) (S.buffer-loaded? bufnr) (S.buffer-unchanged? bufnr) (not (S.buffer-insert-mode? bufnr))))
 
 (fn S.update-jobtick [bufnr]
   (vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick")))
@@ -87,14 +91,14 @@
 
 (fn S.request-format [handler client-id bufnr]
   (let [params (vim.lsp.util.make_formatting_params)]
-	(S.request handler "textDocument/formatting" params client-id bufnr)))
+	(S.client-request handler "textDocument/formatting" params client-id bufnr)))
 
 (fn S.run-jobs [bufnr]
   (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (vim.schedule (fn [] (S.run-jobs bufnr)))))
 		jobs (. S.jobs bufnr)]
 	(if (jobs.nil?) (S.save-buffer bufnr) (case (jobs.pop) [requester handler client-id bufnr] (requester (rec handler) client-id bufnr)))))
 
-(fn S.on-event [client-id]
+(fn S.on-write-event [client-id]
   (fn [args]
 	(let [bufnr args.buf 
 				jobs (. S.jobs bufnr) 
@@ -107,13 +111,13 @@
 (set S.group (vim.api.nvim_create_augroup "LSP" {:clear false}))
 
 (fn S.on-attach [client bufnr]
-  (tset S.jobs bufnr (S.mk-que 11))
+  (tset S.jobs bufnr (S.mk-que 21))
   (vim.api.nvim_clear_autocmds {:group S.group :buffer bufnr})
   (vim.api.nvim_create_autocmd 
 	"BufWritePost"
 	{:group S.group 
 	:buffer bufnr
-	:callback (S.on-event client.id)}))
+	:callback (S.on-write-event client.id)}))
 
 (fn S.config []
   (let [lspconfig (require "lspconfig")]
