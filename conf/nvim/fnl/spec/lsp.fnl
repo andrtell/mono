@@ -55,8 +55,8 @@
 
 (fn S.client-request [handler method params client-id bufnr]
   (let [client (vim.lsp.get_client_by_id client-id)]
-	(if (client.supports_method method {:bufnr bufnr})
-		(client.request method params handler bufnr))))
+	(when (client.supports_method method {:bufnr bufnr})
+	  (client.request method params handler bufnr))))
 
 (fn S.save-buffer [bufnr]
   (if (= bufnr (vim.api.nvim_get_current_buf)) (vim.cmd "noa update")))
