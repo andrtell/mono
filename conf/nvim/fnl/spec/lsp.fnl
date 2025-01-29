@@ -58,16 +58,16 @@
 	(client.request method params handler bufnr)))
 
 (fn S.save-buffer [bufnr]
-	(if (= bufnr (vim.api.nvim_get_current_buf)) (vim.cmd "noa update")))
+  (if (= bufnr (vim.api.nvim_get_current_buf)) (vim.cmd "noa update")))
 
 (fn S.buffer-exists? [bufnr]
-	(not= 0 (vim.fn.bufexists bufnr)))
+  (not= 0 (vim.fn.bufexists bufnr)))
 
 (fn S.buffer-loaded? [bufnr]
-	(vim.api.nvim_buf_is_loaded bufnr))
+  (vim.api.nvim_buf_is_loaded bufnr))
 
 (fn S.buffer-untouched? [bufnr]
-	(= (vim.api.nvim_buf_get_var bufnr "jobtick") (vim.api.nvim_buf_get_var bufnr "changedtick")))
+  (= (vim.api.nvim_buf_get_var bufnr "jobtick") (vim.api.nvim_buf_get_var bufnr "changedtick")))
 
 (fn S.edit-ok? [bufnr]
   (and (S.buffer-exists? bufnr) (S.buffer-loaded? bufnr) (S.buffer-untouched? bufnr)))
@@ -88,7 +88,7 @@
 
 (fn S.run-jobs [bufnr]
   (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (vim.schedule (fn [] (S.run-jobs bufnr)))))
-		jobs (. S.jobs bufnr)]
+			jobs (. S.jobs bufnr)]
 	(if (jobs.nil?) (S.save-buffer bufnr) (case (jobs.pop) [requester handler client-id bufnr] (requester (rec handler) client-id bufnr)))))
 
 (fn S.on-event [client-id]
