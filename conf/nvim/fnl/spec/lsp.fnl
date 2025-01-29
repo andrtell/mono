@@ -30,30 +30,6 @@
 
 (set S.jobs {})
 
-;(fn S.buffer-imports [client-id bufnr callback]
-;  (let [params (vim.lsp.util.make_range_params)]
-;	(set params.context {:source {:organizeImports true}})
-;	(S.client-request client-id bufnr "textDocument/codeAction" params callback)))
-;
-;
-;(fn S.handle-buffer-imports [err res ctx]
-;  (print "called: S.handle-buffer-imports")
-;  (case [err res ctx]
-;	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
-;	[_ res ctx] (if (not= 0 (vim.fn.bufexists ctx.bufnr))
-;					(do 
-;					  (if (not (vim.api.nvim_buf_is_loaded ctx.bufnr))
-;						  (vim.fn.bufload ctx.bufnr))
-;					  (each [_ result (pairs res)]
-;						(each [_ action (pairs result)]
-;						  (print action)))
-;
-;					  ))))
-;					  ;; (vim.lsp.util.apply_text_edits res ctx.bufnr "utf-16")
-;					  ;(if (= ctx.bufnr (vim.api.nvim_get_current_buf))
-;					  ; (vim.cmd "update"))))))
-
-
 (fn S.save-buffer [bufnr]
   (if (= bufnr (vim.api.nvim_get_current_buf)) (vim.cmd "noa update")))
 
@@ -80,13 +56,16 @@
   (let [client (vim.lsp.get_client_by_id client-id)]
 	(client.request method params handler bufnr)))
 
-(fn S.apply-code-action [res bufnr]
-  (when (S.edit-ok? bufnr)
-	(print "APPLY CODE ACTION")))
+(fn S.apply-code-action [result bufnr]
+  (each [_ action (ipairs result)]
+	(case action.kind
+	  "source.organizeImports"
+	  (when (S.edit-ok? bufnr)
+		(vim.lsp.util.apply_workspace_edit action.edit "utf-16")))))
 
 (fn S.handle-code-action [err result ctx]
   (case [err result ctx]
-	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
+	[err _ _] (print (string.format "(LSP Error: %d): %s" err.code err.message))
 	[_ result ctx] (S.apply-code-action result ctx.bufnr)))
 
 (fn S.request-code-action [handler [client-id bufnr]]
