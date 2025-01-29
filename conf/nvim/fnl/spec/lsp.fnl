@@ -53,9 +53,6 @@
 ;					  ;(if (= ctx.bufnr (vim.api.nvim_get_current_buf))
 ;					  ; (vim.cmd "update"))))))
 
-(fn S.client-request [handler method params client-id bufnr]
-  (let [client (vim.lsp.get_client_by_id client-id)]
-	(client.request method params handler bufnr)))
 
 (fn S.save-buffer [bufnr]
   (if (= bufnr (vim.api.nvim_get_current_buf)) (vim.cmd "noa update")))
@@ -79,6 +76,24 @@
 (fn S.update-jobtick [bufnr]
   (vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick")))
 
+(fn S.client-request [handler client-id method params bufnr]
+  (let [client (vim.lsp.get_client_by_id client-id)]
+	(client.request method params handler bufnr)))
+
+(fn S.apply-code-action [res bufnr]
+  (when (S.edit-ok? bufnr)
+	(print "APPLY CODE ACTION")))
+
+(fn S.handle-code-action [err result ctx]
+  (case [err result ctx]
+	[err _ _] (vim.lsp.log (string.format "(LSP Error: %d): %s" err.code err.message))
+	[_ result ctx] (S.apply-code-action result ctx.bufnr)))
+
+(fn S.request-code-action [handler [client-id bufnr]]
+  (let [params (vim.lsp.util.make_range_params)]
+	(set params.context {:source {:organizeImports true}})
+	(S.client-request handler client-id "textDocument/codeAction" params bufnr)))
+
 (fn S.apply-format [res bufnr]
   (when (S.edit-ok? bufnr)
 	(vim.lsp.util.apply_text_edits res bufnr "utf-16")
@@ -91,7 +106,7 @@
 
 (fn S.request-format [handler [client-id bufnr]]
   (let [params (vim.lsp.util.make_formatting_params)]
-	(S.client-request handler "textDocument/formatting" params client-id bufnr)))
+	(S.client-request handler client-id "textDocument/formatting" params bufnr)))
 
 (fn S.run-jobs [bufnr]
   (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (vim.schedule (fn [] (S.run-jobs bufnr)))))
@@ -104,6 +119,7 @@
 				jobs (. S.jobs bufnr) 
 				idle? (jobs.nil?)]
 	  (jobs.push [S.request-format S.handle-format [client-id bufnr]]) 
+	  (jobs.push [S.request-code-action S.handle-code-action [client-id bufnr]]) 
 	  (S.update-jobtick bufnr)
 	  (if idle? (S.run-jobs bufnr)))
 	nil))
