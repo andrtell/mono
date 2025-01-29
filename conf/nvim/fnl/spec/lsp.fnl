@@ -60,15 +60,17 @@
 	(client.request method params handler bufnr)))
 
 (fn S.save-format [res bufnr]
-  (when (and (not= 0 (vim.fn.bufexists bufnr))
-			 (vim.api.nvim_buf_is_loaded bufnr)
-			 (= (vim.api.nvim_buf_get_var bufnr "jobtick")
-				(vim.api.nvim_buf_get_var bufnr "changedtick")))
-	(vim.lsp.util.apply_text_edits res bufnr "utf-16")
-	(when (= bufnr (vim.api.nvim_get_current_buf))
+  (let [exists? (not= 0 (vim.fn.bufexists bufnr))
+		loaded? (vim.api.nvim_buf_is_loaded bufnr)
+		jobtick (vim.api.nvim_buf_get_var bufnr "jobtick")
+		chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")
+		virgin? (= jobtick chgtick)
+		active? (= bufnr (vim.api.nvim_get_current_buf))
+		dosave? (and exists? loaded? virgin? active?)]
+	(when dosave?
+	  (vim.lsp.util.apply_text_edits res bufnr "utf-16")
 	  (vim.cmd "noa update")
-	  (let [changedtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
-		(vim.api.nvim_buf_set_var bufnr "jobtick" changedtick)))))
+	  (vim.api.nvim_buf_set_var bufnr "jobtick" (vim.api.nvim_buf_get_var bufnr "changedtick")))))
 
 (fn S.handle-format [err result ctx]
   (case [err result ctx]
@@ -88,9 +90,9 @@
 	(let [bufnr args.buf
 		  jobs (. S.jobs bufnr)
 		  run? (jobs.nil?)
-		  tick (vim.api.nvim_buf_get_var bufnr "changedtick")]
-	  	(vim.api.nvim_buf_set_var bufnr "jobtick" tick)
+		  chgtick (vim.api.nvim_buf_get_var bufnr "changedtick")]
 		(jobs.push [S.request-format S.handle-format client-id bufnr]) 
+	  	(vim.api.nvim_buf_set_var bufnr "jobtick" chgtick)
 		(if run? (S.run-jobs jobs)))
 	nil))
 
