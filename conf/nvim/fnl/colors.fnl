@@ -25,9 +25,10 @@
 (fn g [s l] (hsl 120 s l))
 (fn b [s l] (hsl 220 s l))
 (fn p [s l] (hsl 300 s l))
+(fn pi [s l] (hsl 350 s l))
 
 (fn set-hl [group opts] 
-  (let [bw {:fg (w 0) :bg (w 99.5)}]
+  (let [bw {:fg (w 1) :bg (w 99.5)}]
   	(vim.api.nvim_set_hl 0 group (vim.tbl_deep_extend "force" {:force true} bw opts))))
 
 (fn reset-hl []
@@ -62,6 +63,3 @@
 (let [blue (b 4 63)]
 	(set-hl :Comment {:fg blue})
 	(set-hl "@comment" {:fg blue}))
-
-
-
