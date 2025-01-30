@@ -1,4 +1,4 @@
-{1 "Olical/conjure"
- :ft ["janet" 
-      "fennel"]
- :lazy true}
+;{1 "Olical/conjure"
+; :ft ["fennel"]
+; :lazy true}
+{}

@@ -17,4 +17,3 @@
   (tset vim.opt key value))
 
 (vim.schedule (fn [] (set vim.opt.clipboard "unnamedplus")))
-

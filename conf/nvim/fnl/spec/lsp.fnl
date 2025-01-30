@@ -88,9 +88,15 @@
 (set S.jobs {})
 
 (fn S.run-jobs [bufnr]
-  (let [rec (fn [handler] (fn [err res ctx] (handler err res ctx) (vim.schedule (fn [] (S.run-jobs bufnr)))))
+  (let [rec (fn [handler] 
+              (fn [err res ctx] 
+                (handler err res ctx) 
+                (vim.schedule (fn [] (S.run-jobs bufnr)))))
         jobs (. S.jobs bufnr)]
-    (if (jobs.nil?) (S.save-buffer bufnr) (case (jobs.pop) [requester handler args] (requester (rec handler) args)))))
+    (if (jobs.nil?) 
+        (S.save-buffer bufnr) 
+        (case (jobs.pop) 
+          [requester handler args] (requester (rec handler) args)))))
 
 (fn S.on-write-event [client-id]
   (fn [args]

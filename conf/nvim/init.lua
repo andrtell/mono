@@ -1,47 +1,57 @@
--- [nfnl] Compiled from init.fnl by https://github.com/Olical/nfnl, do not edit.
-local function file_exists_3f(path)
-  return vim.uv.fs_stat(path)
-end
-local function shell_error_3f()
-  return not (vim.v.shell_error == 0)
-end
-local function die(error_message)
-  io.write(error_message)
-  return os.exit(1)
-end
-local function clone_lazy(target_dir)
-  local cmd = {"git", "clone", "--filter=blob:none", "--branch=stable", "https://github.com/folke/lazy.nvim.git", target_dir}
-  return vim.fn.system(cmd)
-end
-local function clone_lazy_or_die(target_dir)
-  local out = clone_lazy(target_dir)
-  local msg = out:gsub("%s+", " ")
-  if shell_error_3f() then
-    return die(msg)
-  else
-    return nil
-  end
-end
-local function install_lazy(packages_dir)
-  local lazy_dir = (packages_dir .. "/lazy.nvim")
-  if not file_exists_3f(lazy_dir) then
-    clone_lazy_or_die(lazy_dir)
-  else
-  end
-  return vim.opt.rtp:prepend(lazy_dir)
-end
 local packages_dir = (vim.fn.stdpath("config") .. "/packages")
-install_lazy(packages_dir)
+
+local lazy_dir = (packages_dir .. "/lazy.nvim")
+
+if not vim.uv.fs_stat(lazy_dir) then
+  local cmd = {
+    "git", 
+    "clone", 
+    "--filter=blob:none", 
+    "--branch=stable", 
+    "https://github.com/folke/lazy.nvim.git", 
+    lazy_dir
+  }
+  local out = vim.fn.system(cmd)
+  local err = out:gsub("%s+", " ")
+  if (vim.v.shell_error ~= 0) then
+    io.write(err)
+    os.exit(1)
+  end
+end
+
+vim.opt.rtp:prepend(lazy_dir)
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
-local config = {root = packages_dir, lockfile = (packages_dir .. "/lazy-lock.json"), spec = {{"Olical/nfnl", ft = "fennel"}, {import = "spec"}}, change_detection = {notify = false}, install = {colorscheme = {"binary"}}}
-do
-  local lazy = require("lazy")
-  lazy.setup(config)
-end
+
+require("lazy").setup({
+  root = packages_dir, 
+  lockfile = (packages_dir .. "/lazy-lock.json"), 
+  spec = {
+    {"udayvir-singh/tangerine.nvim"},
+    {import = "spec"}
+  }, 
+  change_detection = {
+    notify = false
+  }, 
+  install = { 
+    colorscheme = { "quiet" } 
+  }
+})
+
+require("tangerine").setup({
+  compiler = {
+    verbose = false,
+    hooks = {
+      "onsave",
+      "oninit"
+    }
+  }
+})
+
 require("options")
 require("keymaps")
 require("statusline")
 require("colors")
 require("netrw")
-return require("diagnostic")
+require("diagnostic")

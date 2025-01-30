@@ -58,7 +58,6 @@
   (set-hl :netrwMarkFile {:bg yellow})
   (set-hl :endofbuffer {:fg (w 99.5)})
   (set-hl :DiagnosticUnderlineError {:bg red}))
-  
 
 (let [blue (b 4 63)]
   (set-hl :Comment {:fg blue})
