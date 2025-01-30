@@ -98,7 +98,8 @@ local opt = {
     signcolumn = "yes:1", 
     cursorline = false, 
     showcmd = false, 
-    showmode = false
+    showmode = false,
+    shortmess = "Ita"
 }
 
 for key, value in pairs(opt) do
@@ -200,20 +201,3 @@ vim.diagnostic.handlers.underline = {
         return ul_hide(ul_ns, bufnr)
     end
 }
-
-----------------
-
-require("tangerine").setup({
-    compiler = {
-        verbose = false,
-        hooks = {
-            "onsave",
-            "oninit"
-        },
-    },
-    keymaps = {
-        eval_buffer = "<localleader>e",
-        peek_buffer = "<localleader>l",
-        peek_buffer = "go",
-    },
-})
