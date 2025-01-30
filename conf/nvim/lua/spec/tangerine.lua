@@ -1,5 +1,6 @@
 return {
   "udayvir-singh/tangerine.nvim",
+  ft = {"fennel"},
   opts = {
     compiler = {
       verbose = false,
