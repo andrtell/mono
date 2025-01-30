@@ -1,4 +1,4 @@
 {1 "Olical/conjure"
  :ft ["janet" 
-	  "fennel"]
+      "fennel"]
  :lazy true}
