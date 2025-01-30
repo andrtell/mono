@@ -186,12 +186,12 @@ vim.diagnostic.handlers.underline = {
     show = function(_, bufnr, d, o)
         for i, _ in ipairs(d) do
             if (d[i].end_col == d[i].col) then
-                -- if (vim.fn.strlen(vim.fn.getline("."))) == d[i].col then
-                --     d[i].col = d[i].col - 1
-                -- else
-                --     d[i].end_col = d[i].end_col + 1
-                -- end
-                d[i].col = 0
+                local lastcol = vim.fn.strlen(vim.fn.getline("."))
+                if lastcol == d[i].col then
+                    d[i].col = 0
+                else
+                    d[i].end_col = lastcol
+                end
             end
         end
         return ul_show(ul_ns, bufnr, d, o)
@@ -200,28 +200,6 @@ vim.diagnostic.handlers.underline = {
         return ul_hide(ul_ns, bufnr)
     end
 }
-
-vim.api.nvim_create_autocmd("InsertEnter", {
-  pattern = "*",
-  group = init_group,
-  callback = function()
-    -- vim.diagnostic.disable()
-    -- vim.diagnostic.config({
-    --   virtual_text = false,
-    -- })
-  end
-})
-
-vim.api.nvim_create_autocmd("InsertLeave", {
-  pattern = "*",
-  group = init_group,
-  callback = function()
-    -- vim.diagnostic.enable()
-    -- vim.diagnostic.config({
-    --   virtual_text = true,
-    -- })
-  end
-})
 
 ----------------
 
