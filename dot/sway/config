@@ -1,0 +1,120 @@
+exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+
+# hint: swaymsg -t get_output
+bindswitch --reload {
+	lid:on output eDP-1 disable
+	lid:off output eDP-1 enable
+}
+
+output {
+	DP-6  pos 0    0 res 3840x2160 scale 1
+	eDP-1 pos 3840 0 res 3840x2400 scale 1.5
+}
+
+output * bg $HOME/.config/sway/wallpaper.jpg fill
+
+default_border pixel 2
+default_floating_border pixel 2
+
+titlebar_border_thickness 0
+titlebar_padding 2 2
+
+smart_gaps on
+smart_borders on
+
+focus_follows_mouse no
+focus_on_window_activation smart
+
+gaps outer 0
+gaps inner 0
+
+font pango:monospace 1
+
+#-----------------------border--bkgrnd--text----indctor-child border
+#-------------------------------------------------------------------
+client.focused 		#707070 #BF7070 #424242 #323232	#C35C5C
+client.focused_inactive #707070 #707070 #323232 #323232	#706E6C
+client.unfocused 	#a0a0a0 #a0a0a0 #605E5C #323232	#706E6C
+
+seat * hide_cursor 1000
+
+input * {
+	xkb_options ctrl:nocaps
+	repeat_delay 210
+	repeat_rate 60
+}
+
+set {
+    $win Mod4
+    $alt Mod1
+}
+
+set {
+    $down j
+    $left h
+    $up k
+    $right l
+}
+
+set $mod $alt
+
+bindsym {
+	$alt+Shift+e exit
+	$alt+Shift+c reload
+
+	$alt+w kill
+
+	$alt+d exec foot -c ~/.config/foot/foot_menu.ini -w "500x250" -a menu ~/repo/bash-scripts/menu.bash
+	$alt+Return exec foot -T "_"
+
+	$alt+$left	focus left
+	$alt+$right	focus right
+	$alt+$up	focus up
+	$alt+$down	focus down
+
+	$mod+Shift+$left    move left
+	$mod+Shift+$right   move right
+	$mod+Shift+$up      move up
+	$mod+Shift+$down    move down
+	
+	$alt+m splitv
+	$alt+n splith
+	
+	$win+m layout toggle split	
+	$win+n layout tabbed
+
+	$alt+f fullscreen
+	$alt+r mode "resize"
+
+	$mod+left workspace prev
+	$mod+right workspace next
+
+	$alt+1 workspace 1
+	$alt+2 workspace 2
+	$alt+3 workspace 3
+	$alt+4 workspace 4
+	$alt+5 workspace 5
+	
+	$alt+Shift+1 move container to workspace number 1
+	$alt+Shift+2 move container to workspace number 2
+	$alt+Shift+3 move container to workspace number 3
+	$alt+Shift+4 move container to workspace number 4
+	$alt+Shift+5 move container to workspace number 5
+
+	$alt+Shift+minus move scratchpad
+	$alt+Shift+space floating toggle
+	$alt+minus scratchpad show
+}
+
+for_window [app_id="menu"] floating enabled
+for_window [app_id="menu"] border pixel 2
+
+mode "resize" bindsym {
+	$right  resize shrink width  10px
+	$down   resize grow   height 10px
+	$up     resize shrink height 10px
+	$left   resize grow   width  10px
+	Return mode "default"
+	Escape mode "default"
+}
