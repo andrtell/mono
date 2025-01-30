@@ -59,12 +59,9 @@
 	(set-hl :DiagnosticUnderlineError {:bg red})
 	)
 
-; Hello
-; World
-
-(let [green (b 5 56)]
-	(set-hl :Comment {:fg green})
-	(set-hl "@comment" {:fg green}))
+(let [blue (b 4 63)]
+	(set-hl :Comment {:fg blue})
+	(set-hl "@comment" {:fg blue}))
 
 
 
