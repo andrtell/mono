@@ -78,13 +78,13 @@ local colors = {
 	{"EndOfBuffer", { fg = "#fefefe" }},
 	{"Comment",     { fg = "#9d9fa4" }},
 	{"@comment",    { fg = "#9d9fa4" }},
-	{"LeapLabelPrimary",         { bg = "#fbe0fb" }},
+	{"LeapLabelPrimary", { bg = "#fbe0fb" }},
 	{"DiagnosticUnderlineError", { bg = "#fbe4e4" }},
-	{"DiagnosticUnnecessary", 	 { bg = "#fbe4e4" }},
-	{"DiagnosticDeprecated", 	 { bg = "#fbe4e4" }},
-	{"DiagnosticUnderlineWarn",  { bg = "#fbe4e4" }},
-	{"DiagnosticUnderlineInfo",  { bg = "#fbe4e4" }},
-	{"DiagnosticUnderlineHint",  { bg = "#fbe4e4" }},
+	{"DiagnosticUnnecessary", { bg = "#fbe4e4" }},
+	{"DiagnosticDeprecated", { bg = "#fbe4e4" }},
+	{"DiagnosticUnderlineWarn", { bg = "#fbe4e4" }},
+	{"DiagnosticUnderlineInfo", { bg = "#fbe4e4" }},
+	{"DiagnosticUnderlineHint", { bg = "#fbe4e4" }},
 }
 
 for _, colr in ipairs(colors) do
@@ -96,11 +96,6 @@ end
 ----------------
 vim.o.statusline = " %f %m%r %= %{&filetype} | %{&fenc} | %3l  "
 
--------------
--- AUGROUP --
--------------
-local init_group = vim.api.nvim_create_augroup("netrw", {clear = true})
-
 ------------
 --- NETRW --
 ------------
@@ -108,28 +103,20 @@ vim.g.netrw_banner = 0
 vim.g.netrw_list_hide = "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+"
 vim.g.netrw_keepdir = 0
 
-vim.api.nvim_create_autocmd(
-"FileType", 
-{
+vim.api.nvim_create_autocmd("FileType", {
 	pattern = {"netrw"},
-	group = init_group,
+	group = vim.api.nvim_create_augroup("netrw", {clear = true}),
 	callback = function () 
-		local keys = { 
-			{"<ESC>", ":Sayonara!<CR>"},
-			{"h", "-"},
-			{"l", "<CR>"},
-			{"<left>", "-"},
-			{"<right>", "<CR>"},
-			{".", "gh"}, 
-			{"H", "u"}
-		}
 		local opts = { silent = true, buffer = true, remap = true }
-		for _, k in ipairs(keys) do
-			vim.keymap.set("n", k[1], k[2], opts)
-		end
+		key("n", "<ESC>", ":Sayonara!<CR>", opts)
+		key("n", "h", "-", opts)
+		key("n", "l", "<CR>", opts)
+		key("n", "<left>", "-", opts)
+		key("n", "<right>", "<CR>", opts)
+		key("n", ".", "gh", opts) 
+		key("n", "H", "u", opts)
 	end
-}
-)
+})
 
 -----------------
 -- DIAGNOSTICS --
@@ -164,7 +151,7 @@ vim.diagnostic.handlers.underline = {
 -- PACKAGES --
 --------------
 local vendor_path = vim.fn.stdpath("config") .. "/vendor/"
-	
+
 ----------
 -- LEAP --
 ----------
@@ -198,6 +185,6 @@ lspconfig.gopls.setup {}
 ---------------
 vim.opt.rtp:prepend(vendor_path .. "diagflow.nvim")
 require "diagflow".setup {
-    show_borders = true, 
-    scope = "line"
+	show_borders = true, 
+	scope = "line"
 }
