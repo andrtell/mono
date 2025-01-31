@@ -1,4 +1,4 @@
--- :fennel:1738246081
+-- :fennel:1738311288
 local S = {}
 S["mk-que"] = function(size)
   local q_cap = size
@@ -195,4 +195,9 @@ S.config = function()
   local lspconfig = require("lspconfig")
   return lspconfig.gopls.setup({on_attach = S["on-attach"]})
 end
-return {"neovim/nvim-lspconfig", config = S.config}
+local keys
+local function _32_()
+  return vim.lsp.buf.definition()
+end
+keys = {{"gd", _32_}}
+return {"neovim/nvim-lspconfig", config = S.config, keys = keys}
