@@ -44,6 +44,10 @@ key("n", "<c-left>", "<cmd>vertical resize -2<cr>")
 key("n", "<c-right>", "<cmd>vertical resize +2<cr>")
 key("n", "<S-h>", "<cmd>bprevious<cr>")
 key("n", "<S-l>", "<cmd>bnext<cr>")
+key("n", "s", "<Plug>(leap)")
+key("n", "S", "<Plug>(leap-from-window)")
+key({"x", "o"}, "s", "<Plug>(leap-forward)")
+key({"x", "o"}, "S", "<Plug>(leap-backward)")
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "netrw",
@@ -76,9 +80,9 @@ vim.g.netrw_keepdir = 0
 ------------
 -- COLORS --
 ------------
+
 vim.o.background = "light"
 
--- reset
 for hlgrp, _ in pairs(vim.api.nvim_get_hl(0, {})) do
   if type(hlgrp) == "string" then
     vim.api.nvim_set_hl(0, hlgrp, { fg = "#030303", bg = "#fefefe" }) 
@@ -115,6 +119,7 @@ end
 -----------------
 -- DIAGNOSTICS --
 -----------------
+
 vim.cmd("sign define DiagnosticSignError text= texthl= linehl= numhl=")
 vim.cmd("sign define DiagnosticSignWarn text= texthl= linehl= numhl=")
 
@@ -144,6 +149,7 @@ vim.diagnostic.handlers.underline = {
 ---------
 -- LSP --
 ---------
+
 vim.api.nvim_create_autocmd('FileType',{
   pattern = {"go", "gomod", "gowork", "gotmpl"},
   group = vim.api.nvim_create_augroup("GO", {clear = true}),
@@ -168,9 +174,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
       buffer = ev.buf,
       callback = function()
         local mode = vim.api.nvim_get_mode().mode
-        local filetype = vim.bo.filetype
         if vim.bo.modified == true and mode == 'n' then
-          -- vim.cmd('lua vim.lsp.buf.format()')
           vim.lsp.buf.format()
         end
       end
@@ -181,29 +185,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 --------------
 -- PACKAGES --
 --------------
+
 local vendor_path = vim.fn.stdpath("config") .. "/vendor/"
 
-----------
--- LEAP --
-----------
+vim.opt.rtp:prepend(vendor_path .. "diagflow.nvim")
 vim.opt.rtp:prepend(vendor_path .. "leap.nvim")
+vim.opt.rtp:prepend(vendor_path .. "vim-sayonara")
 
 require "leap".setup {}
 
-key("n", "s", "<Plug>(leap)")
-key("n", "S", "<Plug>(leap-from-window)")
-key({"x", "o"}, "s", "<Plug>(leap-forward)")
-key({"x", "o"}, "S", "<Plug>(leap-backward)")
-
---------------
--- SAYONARA --
---------------
-vim.opt.rtp:prepend(vendor_path .. "vim-sayonara")
-
----------------
--- DIAG FLOW --
----------------
-vim.opt.rtp:prepend(vendor_path .. "diagflow.nvim")
 require "diagflow".setup {
   show_borders = true, 
   scope = "line"
