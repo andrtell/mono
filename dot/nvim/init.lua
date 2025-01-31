@@ -68,8 +68,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup("lsp-keys", {clear = true}),
   callback = function(_ev)
     local o = { silent = true, buffer = true }
-    key("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", o)
-    key("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", o)
+    key("n", "gD", function () vim.lsp.buf.declaration() end, o)
+    key("n", "gd", function () vim.lsp.buf.definition() end, o)
   end,
 })
 
@@ -162,7 +162,6 @@ vim.api.nvim_create_autocmd('FileType',{
     })
   end
 })
-
 
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup("lsp-attach", {clear=true}),
