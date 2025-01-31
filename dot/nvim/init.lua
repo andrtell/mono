@@ -34,23 +34,33 @@ vim.schedule(function ()
 	vim.opt.clipboard = "unnamedplus"
 end)
 
-
 ----------
--- KEYS --
+-- UTIL --
 ----------
 function key(m, l, r, opts)
 	opts = opts or {silent = true}
 	vim.keymap.set(m, l, r, opts)
 end
 
-key("n", "<BS>", ":nohl<CR>") 
-key("i", "jk", "<ESC>") 
+----------
+-- KEYS --
+----------
+key("n", "<BS>", "<cmd>nohl<CR>") 
+key("i", "jk", "<esc>") 
 key("n", "<C-h>", "<C-w><C-h>")
 key("n", "<C-l>", "<C-w><C-l>")
 key("n", "<C-j>", "<C-w><C-j>")
 key("n", "<C-k>", "<C-w><C-k>")
-key("n", "-", ":Ex<CR>")
+key("n", "-", ":Ex<cr>")
 key("n", "*", "g*")
+key("n", "<C-Up>", "<cmd>resize +2<cr>")
+key("n", "<C-Down>", "<cmd>resize -2<cr>")
+key("n", "<C-Left>", "<cmd>vertical resize -2<cr>")
+key("n", "<C-Right>", "<cmd>vertical resize +2<cr>")
+key("n", "<S-h>", "<cmd>bprevious<cr>")
+key("n", "<S-l>", "<cmd>bnext<cr>")
+key("v", "<", "<gv")
+key("v", ">", ">gv")
 
 ------------
 -- COLORS --
@@ -80,8 +90,8 @@ local colors = {
 	{"@comment",    { fg = "#9d9fa4" }},
 	{"LeapLabelPrimary", { bg = "#fbe0fb" }},
 	{"DiagnosticUnderlineError", { bg = "#fbe4e4" }},
-	{"DiagnosticUnnecessary", { bg = "#fbe4e4" }},
-	{"DiagnosticDeprecated", { bg = "#fbe4e4" }},
+	{"DiagnosticUnnecessary",	{ bg = "#fbe4e4" }},
+	{"DiagnosticDeprecated",	{ bg = "#fbe4e4" }},
 	{"DiagnosticUnderlineWarn", { bg = "#fbe4e4" }},
 	{"DiagnosticUnderlineInfo", { bg = "#fbe4e4" }},
 	{"DiagnosticUnderlineHint", { bg = "#fbe4e4" }},
@@ -105,7 +115,7 @@ vim.g.netrw_keepdir = 0
 
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = {"netrw"},
-	group = vim.api.nvim_create_augroup("netrw", {clear = true}),
+	group = vim.api.nvim_create_augroup("NETRW", {clear = true}),
 	callback = function () 
 		local opts = { silent = true, buffer = true, remap = true }
 		key("n", "<ESC>", ":Sayonara!<CR>", opts)
@@ -147,6 +157,30 @@ vim.diagnostic.handlers.underline = {
 	end
 }
 
+---------
+-- LSP --
+---------
+vim.api.nvim_create_autocmd('FileType',{
+	pattern = {"go", "gomod", "gowork", "gotmpl"},
+	group = vim.api.nvim_create_augroup("GO", {clear = true}),
+	callback = function(ev)
+		vim.lsp.start({
+			cmd = {"gopls"}, 
+			name = "gopls", 
+			single_file_support = true,
+			root_dir = vim.fs.root(ev.buf, {"go.work", "go.mod", ".git"}),
+		})
+	end
+})
+
+vim.api.nvim_create_autocmd('LspAttach', {
+	group = vim.api.nvim_create_augroup("LSP-ATTACH", {clear = true}),
+	callback = function(ev)
+		key("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")
+		key("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>")
+	end,
+})
+
 --------------
 -- PACKAGES --
 --------------
@@ -156,7 +190,9 @@ local vendor_path = vim.fn.stdpath("config") .. "/vendor/"
 -- LEAP --
 ----------
 vim.opt.rtp:prepend(vendor_path .. "leap.nvim")
+
 require "leap".setup {}
+
 key("n", "s", "<Plug>(leap)")
 key("n", "S", "<Plug>(leap-from-window)")
 key({"x", "o"}, "s", "<Plug>(leap-forward)")
@@ -172,13 +208,6 @@ vim.opt.rtp:prepend(vendor_path .. "vim-sayonara")
 ------------------
 vim.opt.rtp:prepend(vendor_path .. "guess-indent.nvim")
 require "guess-indent".setup {}
-
-----------------
--- LSP CONFIG --
-----------------
-vim.opt.rtp:prepend(vendor_path .. "nvim-lspconfig")
-local lspconfig = require "lspconfig"
-lspconfig.gopls.setup {}
 
 ---------------
 -- DIAG FLOW --
