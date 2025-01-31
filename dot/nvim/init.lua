@@ -173,11 +173,27 @@ vim.api.nvim_create_autocmd('FileType',{
 	end
 })
 
+local lsp_group = vim.api.nvim_create_augroup("lsp", {clear=true})
+
 vim.api.nvim_create_autocmd('LspAttach', {
-	group = vim.api.nvim_create_augroup("LSP-ATTACH", {clear = true}),
+	group = lsp_group,
 	callback = function(ev)
 		key("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")
 		key("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>")
+
+		vim.api.nvim_clear_autocmds({group = lsp_group, buffer = ev.buf})
+
+		vim.api.nvim_create_autocmd("BufWritePre", {
+			group = lsp_group,
+			buffer = ev.buf,
+			callback = function()
+				local mode = vim.api.nvim_get_mode().mode
+				local filetype = vim.bo.filetype
+				if vim.bo.modified == true and mode == 'n' then
+					vim.cmd('lua vim.lsp.buf.format()')
+				end
+			end
+		})
 	end,
 })
 
