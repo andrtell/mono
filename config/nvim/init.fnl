@@ -13,6 +13,7 @@
           :showcmd false
           :showmode false
           :shortmess "Ita"
+          :gdefault true
           :swapfile false})
 
 (each [k v (pairs o)]
