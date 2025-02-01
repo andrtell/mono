@@ -141,18 +141,6 @@
 ; LSP
 
 (vim.api.nvim_create_autocmd 
-  "FileType" 
-  {:group (group "gopls")
-   :pattern ["go" "gomod" "gowork" "gotmpl"]
-   :callback 
-   (fn [ev] 
-     (vim.lsp.start 
-       {:cmd ["gopls"]
-        :name "gopls"
-        :single_file_support true
-        :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
-
-(vim.api.nvim_create_autocmd 
   "LspAttach" 
   {:group (group "lsp-1")
    :callback (fn [_] (map-keys lsp-keys {:silent true 
@@ -168,3 +156,15 @@
      {:group (buffer-group ev.buf "lsp-format")
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
+
+(vim.api.nvim_create_autocmd 
+  "FileType" 
+  {:group (group "lsp-gopls")
+   :pattern ["go" "gomod" "gowork" "gotmpl"]
+   :callback 
+   (fn [ev] 
+     (vim.lsp.start 
+       {:cmd ["gopls"]
+        :name "gopls"
+        :single_file_support true
+        :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
