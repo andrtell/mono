@@ -98,7 +98,7 @@
 (fn group [name]
   (vim.api.nvim_create_augroup name {:clear true})) 
 
-(fn buffer-group [name bufnr]
+(fn buffer-group [bufnr name]
   (let [group (vim.api.nvim_create_augroup name {:clear false})]
    (vim.api.nvim_clear_autocmds {:group group :buffer bufnr})
    group))
@@ -165,6 +165,6 @@
    (fn [ev] 
     (vim.api.nvim_create_autocmd 
      "BufWritePre"
-     {:group (buffer-group "lsp-format" ev.buf)
+     {:group (buffer-group ev.buf "lsp-format")
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
