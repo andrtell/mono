@@ -20,35 +20,38 @@
 
 (set vim.o.statusline " %f %m%r %= %{&filetype} | %{&fenc} | %3l  ")
 
-(local vi-keys {:i [["jk" "<esc>"]]
-                :n [["<bs>" ":nohl<cr>"]
-                    ["*" "g*"]
-                    ["-" ":Ex<cr>"]
-                    ["<c-h>" "<c-w><c-h>"]
-                    ["<c-l>" "<c-w><c-l>"]
-                    ["<c-j>" "<c-w><c-j>"] 
-                    ["<c-k>" "<c-w><c-k>"]
-                    ["<c-up>" ":resize +2<cr>"]
-                    ["<c-down>" ":resize -2<cr>"]
-                    ["<c-left>" ":vertical resize -2<cr>"]
-                    ["<c-right>" ":vertical resize +2<cr>"]
-                    ["<S-h>" ":bprevious<cr>"]
-                    ["<S-l>" ":bnext<cr>"]
-                    ["s" "<Plug>(leap)"]
-                    ["S" "<Plug>(leap-from-window)"]]})
+(local vim-keys {:i [["jk" "<esc>"]]
+                 :n [["<bs>" ":nohl<cr>"]
+                     ["*" "g*"]
+                     ["-" ":Ex<cr>"]
+                     ["<c-h>" "<c-w><c-h>"]
+                     ["<c-l>" "<c-w><c-l>"]
+                     ["<c-j>" "<c-w><c-j>"] 
+                     ["<c-k>" "<c-w><c-k>"]
+                     ["<c-up>" ":resize +2<cr>"]
+                     ["<c-down>" ":resize -2<cr>"]
+                     ["<c-left>" ":vertical resize -2<cr>"]
+                     ["<c-right>" ":vertical resize +2<cr>"]
+                     ["<S-h>" ":bprevious<cr>"]
+                     ["<S-l>" ":bnext<cr>"]
+                     ["s" "<Plug>(leap)"]
+                     ["S" "<Plug>(leap-from-window)"]]})
 
-(local netrw-keys {:n [["<esc>" ":Sayonara!<CR>"]
-                       ["h" "-"]
-                       ["l" "<CR>"]
-                       ["." "gh"]
-                       ["H" "u"]]}) 
+(local lsp-keys {:n [["gD" (fn [] (vim.lsp.buf.declaration))]
+                     ["gd" (fn [] (vim.lsp.buf.definition))]]}) 
+
+(local nrw-keys {:n [["<esc>" ":Sayonara!<CR>"]
+                     ["h" "-"]
+                     ["l" "<CR>"]
+                     ["." "gh"]
+                     ["H" "u"]]}) 
 
 (fn map-keys [keys opt] 
   (each [m ks (pairs keys)]
    (each [_ k (ipairs ks)]
      (vim.keymap.set m (. k 1) (. k 2) opt))))
 
-(map-keys vi-keys {:silent true})
+(map-keys vim-keys {:silent true})
 
 (set vim.o.background "light")
 
@@ -93,11 +96,14 @@
   "FileType" 
   {:group (group "netrw")
    :pattern "netrw"
-   :callback (fn [_] (map-keys netrw-keys {:silent true 
-                                           :buffer true 
-                                           :remap true}))})
+   :callback (fn [_] (map-keys nrw-keys {:silent true 
+                                         :buffer true 
+                                         :remap true}))})
 
 ; Diagnostic
+
+(vim.fn.sign_define "DiagnosticSignWarn" {:text ""})
+(vim.fn.sign_define "DiagnosticSignError" {:text ""})
 
 (let [ns (vim.api.nvim_create_namespace "dns") 
       show_0 vim.diagnostic.handlers.underline.show
@@ -128,3 +134,9 @@
         :name "gopls"
         :single_file_support true
         :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
+
+(vim.api.nvim_create_autocmd 
+  "LspAttach" 
+  {:group (group "lsp")
+   :callback (fn [_] (map-keys lsp-keys {:silent true 
+                                         :buffer true}))})
