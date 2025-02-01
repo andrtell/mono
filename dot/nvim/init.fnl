@@ -1,3 +1,5 @@
+; Options
+
 (local o {:ignorecase true
           :smartcase true
           :updatetime 250
@@ -18,7 +20,11 @@
 
 (vim.schedule (fn [] (set vim.opt.clipboard "unnamedplus")))
 
+; Statusline
+
 (set vim.o.statusline " %f %m%r %= %{&filetype} | %{&fenc} | %3l  ")
+
+; Keys
 
 (local vim-keys {:i [["jk" "<esc>"]]
                  :n [["<bs>" ":nohl<cr>"]
@@ -46,12 +52,16 @@
                      ["." "gh"]
                      ["H" "u"]]}) 
 
+; Util
+
 (fn map-keys [keys opt] 
   (each [m ks (pairs keys)]
    (each [_ k (ipairs ks)]
      (vim.keymap.set m (. k 1) (. k 2) opt))))
 
 (map-keys vim-keys {:silent true})
+
+; Colors
 
 (set vim.o.background "light")
 
@@ -83,8 +93,15 @@
 (each [_ hl (ipairs colors)]
   (vim.api.nvim_set_hl 0 (. hl 1) (. hl 2)))
 
+; Util
+
 (fn group [name]
-  (vim.api.nvim_create_augroup name {:clear true}))
+  (vim.api.nvim_create_augroup name {:clear true})) 
+
+(fn buffer-group [name bufnr]
+  (let [group (vim.api.nvim_create_augroup name {:clear false})]
+   (vim.api.nvim_clear_autocmds {:group group :buffer bufnr})
+   group))
 
 ; Netrw
   
@@ -94,7 +111,7 @@
 
 (vim.api.nvim_create_autocmd 
   "FileType" 
-  {:group (group "netrw")
+  {:group (group "netrw" {})
    :pattern "netrw"
    :callback (fn [_] (map-keys nrw-keys {:silent true 
                                          :buffer true 
@@ -137,6 +154,17 @@
 
 (vim.api.nvim_create_autocmd 
   "LspAttach" 
-  {:group (group "lsp")
+  {:group (group "lsp-1")
    :callback (fn [_] (map-keys lsp-keys {:silent true 
                                          :buffer true}))})
+
+(vim.api.nvim_create_autocmd 
+  "LspAttach" 
+  {:group (group "lsp-2")
+   :callback 
+   (fn [ev] 
+    (vim.api.nvim_create_autocmd 
+     "BufWritePre"
+     {:group (buffer-group "lsp-format" ev.buf)
+      :buffer ev.buf
+      :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
