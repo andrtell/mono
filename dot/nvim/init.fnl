@@ -20,26 +20,35 @@
 
 (set vim.o.statusline " %f %m%r %= %{&filetype} | %{&fenc} | %3l  ")
 
-(local keys {:i [["jk" "<esc>"]]
-             :n [["<bs>" ":nohl<cr>"]
-                 ["*" "g*"]
-                 ["-" ":Ex<cr>"]
-                 ["<c-h>" "<c-w><c-h>"]
-                 ["<c-l>" "<c-w><c-l>"]
-                 ["<c-j>" "<c-w><c-j>"] 
-                 ["<c-k>" "<c-w><c-k>"]
-                 ["<c-up>" ":resize +2<cr>"]
-                 ["<c-down>" ":resize -2<cr>"]
-                 ["<c-left>" ":vertical resize -2<cr>"]
-                 ["<c-right>" ":vertical resize +2<cr>"]
-                 ["<S-h>" ":bprevious<cr>"]
-                 ["<S-l>" ":bnext<cr>"]
-                 ["s" "<Plug>(leap)"]
-                 ["S" "<Plug>(leap-from-window)"]]})
+(local vi-keys {:i [["jk" "<esc>"]]
+                :n [["<bs>" ":nohl<cr>"]
+                    ["*" "g*"]
+                    ["-" ":Ex<cr>"]
+                    ["<c-h>" "<c-w><c-h>"]
+                    ["<c-l>" "<c-w><c-l>"]
+                    ["<c-j>" "<c-w><c-j>"] 
+                    ["<c-k>" "<c-w><c-k>"]
+                    ["<c-up>" ":resize +2<cr>"]
+                    ["<c-down>" ":resize -2<cr>"]
+                    ["<c-left>" ":vertical resize -2<cr>"]
+                    ["<c-right>" ":vertical resize +2<cr>"]
+                    ["<S-h>" ":bprevious<cr>"]
+                    ["<S-l>" ":bnext<cr>"]
+                    ["s" "<Plug>(leap)"]
+                    ["S" "<Plug>(leap-from-window)"]]})
 
-(each [m ks (pairs keys)]
-  (each [_ k (ipairs ks)]
-    (vim.keymap.set m (. k 1) (. k 2) {})))
+(local netrw-keys {:n [["<esc>" ":Sayonara!<CR>"]
+                       ["h" "-"]
+                       ["l" "<CR>"]
+                       ["." "gh"]
+                       ["H" "u"]]}) 
+
+(fn map-keys [keys opt] 
+  (each [m ks (pairs keys)]
+   (each [_ k (ipairs ks)]
+     (vim.keymap.set m (. k 1) (. k 2) opt))))
+
+(map-keys vi-keys {:silent true})
 
 (set vim.o.background "light")
 
@@ -76,6 +85,14 @@
 (set vim.g.netrw_banner 0)
 (set vim.g.netrw_list_hide "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+")
 (set vim.g.netrw_keepdir 0)
+
+(vim.api.nvim_create_autocmd 
+  "FileType" 
+  {:pattern "netrw"
+   :group (vim.api.nvim_create_augroup "netrw" {:clear true})
+   :callback (fn [_] (map-keys netrw-keys {:silent true 
+                                           :buffer true 
+                                           :remap true}))})
 
 ; Diagnostic
 
