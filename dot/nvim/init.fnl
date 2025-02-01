@@ -111,7 +111,7 @@
 
 (vim.api.nvim_create_autocmd 
   "FileType" 
-  {:group (group "netrw" {})
+  {:group (group "netrw")
    :pattern "netrw"
    :callback (fn [_] (map-keys nrw-keys {:silent true 
                                          :buffer true 
