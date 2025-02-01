@@ -80,6 +80,9 @@
 (each [_ hl (ipairs colors)]
   (vim.api.nvim_set_hl 0 (. hl 1) (. hl 2)))
 
+(fn group [name]
+  (vim.api.nvim_create_augroup name {:clear true}))
+
 ; Netrw
   
 (set vim.g.netrw_banner 0)
@@ -88,8 +91,8 @@
 
 (vim.api.nvim_create_autocmd 
   "FileType" 
-  {:pattern "netrw"
-   :group (vim.api.nvim_create_augroup "netrw" {:clear true})
+  {:group (group "netrw")
+   :pattern "netrw"
    :callback (fn [_] (map-keys netrw-keys {:silent true 
                                            :buffer true 
                                            :remap true}))})
@@ -116,10 +119,8 @@
 
 (vim.api.nvim_create_autocmd 
   "FileType" 
-  {:pattern 
-   ["go" "gomod" "gowork" "gotmpl"]
-   :group 
-   (vim.api.nvim_create_augroup "gopls" {:clear true})
+  {:group (group "gopls")
+   :pattern ["go" "gomod" "gowork" "gotmpl"]
    :callback 
    (fn [ev] 
      (vim.lsp.start 
