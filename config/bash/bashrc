@@ -1,30 +1,25 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+alias ls='ls -hF --color=auto'
+alias ll='ls -lhF --color=auto'
+alias la='ls -lahF --color=auto'
+alias grep='grep --color=auto'
+alias ssh='TERM=xterm ssh'
+alias vi='nvim'
+alias vim='nvim'
+
+export PATH="$PATH:.:$HOME/bin:$HOME/go/bin"
+export PROMPT_COMMAND='echo'
+export PS1='\W > '
+export BROWSER=firefox
+export EDITOR=nvim
+export GOPATH="$HOME/go"
+export ERL_FLAGS="-kernel shell_history enabled"
+export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 export QT_QPA_PLATFORM=wayland
 export QT_QPA_PLATFORMTHEME=qt6ct
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway
 export XDG_CURRENT_SESSION_TYPE=wayland
 export MOZ_ENABLE_WAYLAND=1
-export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-export BROWSER=firefox
-export EDITOR=nvim
-export ERL_FLAGS="-kernel shell_history enabled"
-export GOPATH="$HOME/go"
-export PS1='\W > '
-export PROMPT_COMMAND='echo'
-export PATH="$PATH:.:$HOME/bin:$HOME/go/bin"
-
-alias ssh='TERM=xterm ssh'
-alias ls='ls -hF --color=auto'
-alias ll='ls -lhF --color=auto'
-alias la='ls -lahF --color=auto'
-alias grep='grep --color=auto'
-alias vi='nvim'
-alias vim='nvim'
-
-alias ga='git add'
-alias gc='git commit'
-alias gs='git status'
-alias gp='git push'
