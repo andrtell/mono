@@ -4,7 +4,7 @@
           :smartcase true
           :updatetime 250
           :timeoutlen 300
-          :scrolloff 10
+          :scrolloff 21
           :mouse "a"
           :breakindent true
           :laststatus 3
@@ -26,6 +26,9 @@
 (set vim.o.statusline " %f %m%r %= %{&filetype} | %{&fenc} | %3l  ")
 
 ; Keys
+
+(set vim.g.mapleader " ")
+(set vim.g.maplocalleader ",")
 
 (local vim-keys {:i [["jk" "<esc>"]]
                  :n [["<bs>" ":nohl<cr>"]
@@ -68,14 +71,14 @@
 
 (each [hlgrp _ (pairs (vim.api.nvim_get_hl 0 {}))]
   (if (= "string" (type hlgrp))
-     (vim.api.nvim_set_hl 0 hlgrp {:fg "#030303" :bg "#fefefe"}))) 
+     (vim.api.nvim_set_hl 0 hlgrp {:fg "#010101" :bg "#fefefe"}))) 
     
-(local colors [["Search"       {:bg "#f9edd7"}] 
-               ["IncSearch"    {:bg "#f9edd7"}]
-               ["CurSearch"    {:bg "#f9edd7"}]
-               ["Visual"       {:bg "#e2eafb"}]
-               ["VisualNOS"    {:bg "#e2eafb"}]
-               ["MatchParen"   {:bg "#fbe4e4"}]
+(local colors [["Search"       {:bg "#faefd8"}] 
+               ["IncSearch"    {:bg "#faefd8"}]
+               ["CurSearch"    {:bg "#f9edd8"}]
+               ["Visual"       {:bg "#e1eafc"}]
+               ["VisualNOS"    {:bg "#e1ebfc"}]
+               ["MatchParen"   {:bg "#fbe3e3"}]
                ["Pmenu"        {:bg "#f0f0f0"}]
                ["PmenuSel"     {:bg "#d9d9d9"}]
                ["StatusLine"   {:bg "#ebebeb"}] 
@@ -83,14 +86,20 @@
                ["EndOfBuffer"  {:fg "#fefefe"}]
                ["Comment"      {:fg "#9d9fa4"}] 
                ["@comment"     {:fg "#9d9fa4"}]
-               ["LeapLabelPrimary"         {:bg "#fbe0fb"}]
+               ["LeapLabelPrimary"         {:bg "#fadffa"}]
                ["DiagnosticUnderlineError" {:bg "#fbe4e4"}]
                ["DiagnosticUnderlineWarn"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnderlineInfo"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnderlineHint"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnnecessary"    {:bg "#fbe4e4"}] 
-               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]])
-     
+               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]
+
+               ["@punctuation.bracket.scheme" {:fg "#282828"}]])
+
+               ;["RainbowDelimiterRed"      {:fg "#A90000"}]
+               ;["RainbowDelimiterGreen"    {:fg "#008800"}]
+               ;["RainbowDelimiterBlue"     {:fg "#0013AB"}]])
+
 (each [_ hl (ipairs colors)]
   (vim.api.nvim_set_hl 0 (. hl 1) (. hl 2)))
 
@@ -103,6 +112,10 @@
   (let [group (vim.api.nvim_create_augroup name {:clear false})]
    (vim.api.nvim_clear_autocmds {:group group :buffer bufnr})
    group))
+
+; Autocommands
+
+
 
 ; Netrw
   
@@ -169,3 +182,22 @@
         :name "gopls"
         :single_file_support true
         :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
+
+; Treesitter
+
+(let [ts (require "nvim-treesitter.configs")]
+  (ts.setup {:ensure_installed "all" 
+             :indent {:enable true}
+             :highlight {:enable true}}))
+
+; Conjure
+
+(tset vim.g "conjure#client#scheme#stdio#command" "petite")
+(tset vim.g "conjure#client#scheme#stdio#prompt_pattern" "\n?> $?")
+
+;; Rainbow
+
+;(let [rainbow (require "rainbow-delimiters")]
+;  (set vim.g.rainbow_delimiters {:highlight ["RainbowDelimiterRed"
+;                                             "RainbowDelimiterBlue"
+;                                             "RainbowDelimiterGreen"]}))
