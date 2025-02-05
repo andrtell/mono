@@ -78,7 +78,8 @@
                ["CurSearch"    {:bg "#f9edd8"}]
                ["Visual"       {:bg "#e1eafc"}]
                ["VisualNOS"    {:bg "#e1ebfc"}]
-               ["MatchParen"   {:bg "#fbe3e3"}]
+               ;["MatchParen"   {:bg "#fbe3e3"}]
+               ["MatchParen"   {:bg "#d3ebd3"}]
                ["Pmenu"        {:bg "#f0f0f0"}]
                ["PmenuSel"     {:bg "#d9d9d9"}]
                ["StatusLine"   {:bg "#ebebeb"}] 
@@ -92,9 +93,9 @@
                ["DiagnosticUnderlineInfo"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnderlineHint"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnnecessary"    {:bg "#fbe4e4"}] 
-               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]
+               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]])
 
-               ["@punctuation.bracket.scheme" {:fg "#282828"}]])
+               ;["@punctuation.bracket.scheme" {:fg "#282828"}]])
 
                ;["RainbowDelimiterRed"      {:fg "#A90000"}]
                ;["RainbowDelimiterGreen"    {:fg "#008800"}]
@@ -112,10 +113,6 @@
   (let [group (vim.api.nvim_create_augroup name {:clear false})]
    (vim.api.nvim_clear_autocmds {:group group :buffer bufnr})
    group))
-
-; Autocommands
-
-
 
 ; Netrw
   
@@ -152,6 +149,7 @@
         :hide
         (fn [_ bufnr] (hide_0 ns bufnr))}))
 
+
 ; LSP
 
 (vim.api.nvim_create_autocmd 
@@ -171,6 +169,19 @@
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
 
+; Scheme
+
+(vim.api.nvim_create_autocmd 
+  "FileType" 
+  {:group (group "scheme")
+   :pattern ["scheme"]
+   :callback 
+   (fn [ev] (vim.cmd "packadd parinfer-rust"))}) 
+
+(set vim.g.parinfer_mode "paren")
+
+; Go
+
 (vim.api.nvim_create_autocmd 
   "FileType" 
   {:group (group "lsp-gopls")
@@ -183,21 +194,7 @@
         :single_file_support true
         :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
 
-; Treesitter
-
-(let [ts (require "nvim-treesitter.configs")]
-  (ts.setup {:ensure_installed "all" 
-             :indent {:enable true}
-             :highlight {:enable true}}))
-
 ; Conjure
 
-(tset vim.g "conjure#client#scheme#stdio#command" "petite")
-(tset vim.g "conjure#client#scheme#stdio#prompt_pattern" "\n?> $?")
-
-;; Rainbow
-
-;(let [rainbow (require "rainbow-delimiters")]
-;  (set vim.g.rainbow_delimiters {:highlight ["RainbowDelimiterRed"
-;                                             "RainbowDelimiterBlue"
-;                                             "RainbowDelimiterGreen"]}))
+;(tset vim.g "conjure#client#scheme#stdio#command" "petite")
+;(tset vim.g "conjure#client#scheme#stdio#prompt_pattern" "\n?> $?")
