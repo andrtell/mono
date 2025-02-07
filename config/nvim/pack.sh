@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
+OPT="pack/vendor/opt"
+START="pack/vendor/start"
 INSTALL="pack/vendor/install"
 
+mkdir -p $OPT
+mkdir -p $START
 mkdir -p $INSTALL
 
 cd $INSTALL
@@ -26,9 +30,3 @@ git -C "conjure" pull || \
 
 git -C "nvim-paredit" pull || \
 	git clone https://github.com/julienvincent/nvim-paredit.git
-
-cd ..
-
-START="pack/vendor/start"
-
-mkdir -p $START

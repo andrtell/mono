@@ -33,7 +33,7 @@ font pango:monospace 1
 
 #-----------------------border--bkgrnd--text----indctor-child border
 #-------------------------------------------------------------------
-client.focused 		#707070 #BF7070 #424242 #323232	#C35C5C
+client.focused 		#707070 #A04040 #424242 #323232	#C35C5C
 client.focused_inactive #707070 #707070 #323232 #323232	#706E6C
 client.unfocused 	#a0a0a0 #a0a0a0 #605E5C #323232	#706E6C
 

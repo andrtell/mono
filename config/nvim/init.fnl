@@ -176,7 +176,11 @@
   {:group (group "scheme")
    :pattern ["scheme"]
    :callback 
-   (fn [ev] (vim.cmd "packadd parinfer-rust"))}) 
+   (fn [ev] 
+     (vim.cmd "packadd parinfer-rust")
+     (vim.cmd "packadd conjure"))}) 
+
+(tset vim.g "conjure#filetype#scheme"  "conjure.client.guile.socket")
 
 (set vim.g.parinfer_mode "paren")
 
@@ -196,5 +200,3 @@
 
 ; Conjure
 
-;(tset vim.g "conjure#client#scheme#stdio#command" "petite")
-;(tset vim.g "conjure#client#scheme#stdio#prompt_pattern" "\n?> $?")
