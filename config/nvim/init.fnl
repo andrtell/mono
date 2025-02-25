@@ -30,6 +30,12 @@
 (set vim.g.mapleader " ")
 (set vim.g.maplocalleader ",")
 
+(fn goto-next [_] 
+  (vim.diagnostic.goto_next {:float false}))
+
+(fn goto-prev [_] 
+  (vim.diagnostic.goto_prev {:float false}))
+
 (local vim-keys {:i [["jk" "<esc>"]]
                  :n [["<bs>" ":nohl<cr>"]
                      ["*" "g*"]
@@ -44,6 +50,8 @@
                      ["<c-right>" ":vertical resize +2<cr>"]
                      ["<S-h>" ":bprevious<cr>"]
                      ["<S-l>" ":bnext<cr>"]
+		     ["]g" goto-next] 
+		     ["[g" goto-prev]
                      ["s" "<Plug>(leap)"]
                      ["S" "<Plug>(leap-from-window)"]]})
 
@@ -93,13 +101,10 @@
                ["DiagnosticUnderlineInfo"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnderlineHint"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnnecessary"    {:bg "#fbe4e4"}] 
-               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]])
-
-               ;["@punctuation.bracket.scheme" {:fg "#282828"}]])
-
-               ;["RainbowDelimiterRed"      {:fg "#A90000"}]
-               ;["RainbowDelimiterGreen"    {:fg "#008800"}]
-               ;["RainbowDelimiterBlue"     {:fg "#0013AB"}]])
+               ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]
+	       ["FloatBorder" {:fg "#9B9B9B"}]
+	       ["DiagnosticFloatingError" {:fg "#030303"}]
+	       ])
 
 (each [_ hl (ipairs colors)]
   (vim.api.nvim_set_hl 0 (. hl 1) (. hl 2)))
@@ -130,10 +135,39 @@
 
 ; Diagnostic
 
+(vim.diagnostic.config {:virtual_text false})
+
+(fn open-float [_]
+  (let [(buf-nr win-id) (vim.diagnostic.open_float {:focus false 
+						    :scope "cursor"
+						    :border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]
+						    :header ""
+						    :prefix " "
+						    :suffix " "})]
+    (if win-id
+	(let [config-0 (vim.api.nvim_win_get_config win-id)
+	      config-1 (vim.tbl_extend "force" config-0 {:relative "win"
+				       			 :win (vim.api.nvim_get_current_win)
+							 :row 0
+							 :col 999})]
+    	  (vim.api.nvim_win_set_config win-id config-1)))))
+
+(vim.api.nvim_create_autocmd 
+  "FileType" 
+  {:group (group "diagnostic-go-0")
+   :pattern ["go" "gomod" "gowork" "gotmpl"]
+   :callback 
+   (fn [ev] 
+     (vim.api.nvim_create_autocmd
+       ["CursorHold"]
+       {:group (buffer-group ev.buf "diagnostic-go-buf-0")
+        :buffer ev.buf
+	:callback (fn [] (open-float) false)}))})
+
 (vim.fn.sign_define "DiagnosticSignWarn" {:text ""})
 (vim.fn.sign_define "DiagnosticSignError" {:text ""})
 
-(let [ns (vim.api.nvim_create_namespace "dns") 
+(let [ns (vim.api.nvim_create_namespace "diagnostics") 
       show_0 vim.diagnostic.handlers.underline.show
       hide_0 vim.diagnostic.handlers.underline.hide]
   (set vim.diagnostic.handlers.underline
@@ -148,7 +182,6 @@
            (show_0 ns bufnr ds opt)))
         :hide
         (fn [_ bufnr] (hide_0 ns bufnr))}))
-
 
 ; LSP
 
@@ -169,21 +202,6 @@
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
 
-; Scheme
-
-(vim.api.nvim_create_autocmd 
-  "FileType" 
-  {:group (group "scheme")
-   :pattern ["scheme"]
-   :callback 
-   (fn [ev] 
-     (vim.cmd "packadd parinfer-rust")
-     (vim.cmd "packadd conjure"))}) 
-
-(tset vim.g "conjure#filetype#scheme"  "conjure.client.guile.socket")
-
-(set vim.g.parinfer_mode "paren")
-
 ; Go
 
 (vim.api.nvim_create_autocmd 
@@ -197,6 +215,3 @@
         :name "gopls"
         :single_file_support true
         :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
-
-; Conjure
-
