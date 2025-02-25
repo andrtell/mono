@@ -102,7 +102,7 @@
                ["DiagnosticUnderlineHint"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnnecessary"    {:bg "#fbe4e4"}] 
                ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]
-	       ["FloatBorder" {:fg "#9B9B9B"}]
+	       ["FloatBorder" {:fg "#999999"}]
 	       ["DiagnosticFloatingError" {:fg "#030303"}]
 	       ])
 
@@ -138,12 +138,13 @@
 (vim.diagnostic.config {:virtual_text false})
 
 (fn open-float [_]
-  (let [(buf-nr win-id) (vim.diagnostic.open_float {:focus false 
-						    :scope "cursor"
-						    :border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]
-						    :header ""
-						    :prefix " "
-						    :suffix " "})]
+  (let [(buf-nr win-id) 
+	(vim.diagnostic.open_float {:focus false 
+				    :scope "line"
+				    :border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]
+				    :header "" 
+				    :prefix " "
+				    :suffix " "})]
     (if win-id
 	(let [config-0 (vim.api.nvim_win_get_config win-id)
 	      config-1 (vim.tbl_extend "force" config-0 {:relative "win"
@@ -201,6 +202,16 @@
      {:group (buffer-group ev.buf "lsp-format")
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
+
+(let [fun vim.lsp.util.open_floating_preview
+      border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]]
+  (tset vim.lsp.util 
+	:open_floating_preview
+	(fn [contents syntax opts & rest]
+	  (let [opts (or opts {})]
+	    (tset opts :border border)
+	    (tset opts :max_width 80)
+	    (fun contents syntax opts)))))
 
 ; Go
 
