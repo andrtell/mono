@@ -102,9 +102,8 @@
                ["DiagnosticUnderlineHint"  {:bg "#fbe4e4"}] 
                ["DiagnosticUnnecessary"    {:bg "#fbe4e4"}] 
                ["DiagnosticDeprecated"     {:bg "#fbe4e4"}]
-	       ["FloatBorder" {:fg "#999999"}]
 	       ["DiagnosticFloatingError" {:fg "#030303"}]
-	       ])
+	       ["FloatBorder" {:fg "#999999"}]])
 
 (each [_ hl (ipairs colors)]
   (vim.api.nvim_set_hl 0 (. hl 1) (. hl 2)))
@@ -203,15 +202,15 @@
       :buffer ev.buf
       :callback (fn [] (if vim.bo.modified (vim.lsp.buf.format)))}))}) 
 
-(let [fun vim.lsp.util.open_floating_preview
-      border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]]
+(let [fun vim.lsp.util.open_floating_preview]
   (tset vim.lsp.util 
 	:open_floating_preview
 	(fn [contents syntax opts & rest]
-	  (let [opts (or opts {})]
-	    (tset opts :border border)
-	    (tset opts :max_width 80)
-	    (fun contents syntax opts)))))
+	  (let [opts-0 (or opts {})
+		border ["┌" "─" "┐" "│" "┘" "─" "└" "│"]
+		opts-1 (vim.tbl_extend "force" opts-0 {:border border
+				                       :max_width 80})]
+	    (fun contents syntax opts-1)))))
 
 ; Go
 
