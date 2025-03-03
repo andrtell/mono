@@ -33,9 +33,12 @@ font pango:monospace 1
 
 #-----------------------border--bkgrnd--text----indctor-child border
 #-------------------------------------------------------------------
-client.focused 		#707070 #A04040 #424242 #323232	#C35C5C
+client.focused 		#707070 #BF7070 #424242 #323232	#C35C5C
 client.focused_inactive #707070 #707070 #323232 #323232	#706E6C
 client.unfocused 	#a0a0a0 #a0a0a0 #605E5C #323232	#706E6C
+
+for_window [app_id="menu"] floating enabled
+for_window [app_id="menu"] border pixel 4
 
 seat * hide_cursor 1000
 
@@ -59,56 +62,53 @@ set {
 
 set $mod $alt
 
+
 bindsym {
-	$alt+Shift+e exit
-	$alt+Shift+c reload
+	$mod+Shift+e exit
+	$mod+Shift+c reload
 
-	$alt+w kill
+	$mod+w kill
 
-	$alt+d exec foot -c ~/.config/foot/foot_menu.ini -w "500x250" -a menu ~/repo/bash-scripts/menu.bash
-	$alt+Return exec foot -T "_"
+	$mod+d exec foot -c ~/.config/foot/foot-menu.ini -w "420x480" -a menu ~/repo/bash-scripts/menu.bash
+	$mod+Return exec foot -T "_"
 
-	$alt+$left	focus left
-	$alt+$right	focus right
-	$alt+$up	focus up
-	$alt+$down	focus down
+	$mod+$left	focus left
+	$mod+$right	focus right
+	$mod+$up	focus up
+	$mod+$down	focus down
 
 	$mod+Shift+$left    move left
 	$mod+Shift+$right   move right
 	$mod+Shift+$up      move up
 	$mod+Shift+$down    move down
 	
-	$alt+m splitv
-	$alt+n splith
-	
-	$win+m layout toggle split	
-	$win+n layout tabbed
+	$mod+m splitv
+	$mod+n splith
+	$mod+s layout toggle split
+	$mod+Shift+s layout tabbed
 
-	$alt+f fullscreen
-	$alt+r mode "resize"
+	$mod+f fullscreen
+	$mod+r mode "resize"
 
 	$mod+left workspace prev
 	$mod+right workspace next
 
-	$alt+1 workspace 1
-	$alt+2 workspace 2
-	$alt+3 workspace 3
-	$alt+4 workspace 4
-	$alt+5 workspace 5
+	$mod+1 workspace 1
+	$mod+2 workspace 2
+	$mod+3 workspace 3
+	$mod+4 workspace 4
+	$mod+5 workspace 5
 	
-	$alt+Shift+1 move container to workspace number 1
-	$alt+Shift+2 move container to workspace number 2
-	$alt+Shift+3 move container to workspace number 3
-	$alt+Shift+4 move container to workspace number 4
-	$alt+Shift+5 move container to workspace number 5
+	$mod+Shift+1 move container to workspace number 1
+	$mod+Shift+2 move container to workspace number 2
+	$mod+Shift+3 move container to workspace number 3
+	$mod+Shift+4 move container to workspace number 4
+	$mod+Shift+5 move container to workspace number 5
 
-	$alt+Shift+minus move scratchpad
-	$alt+Shift+space floating toggle
-	$alt+minus scratchpad show
+	$mod+Shift+minus move scratchpad
+	$mod+Shift+space floating toggle
+	$mod+minus scratchpad show
 }
-
-for_window [app_id="menu"] floating enabled
-for_window [app_id="menu"] border pixel 2
 
 mode "resize" bindsym {
 	$right  resize shrink width  10px
