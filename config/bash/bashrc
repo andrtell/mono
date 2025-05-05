@@ -8,8 +8,9 @@ alias grep='grep --color=auto'
 alias ssh='TERM=xterm ssh'
 alias vi='nvim'
 alias vim='nvim'
+alias tclsh='rlwrap tclsh'
 
-export PATH="$PATH:.:$HOME/bin:$HOME/go/bin:$HOME/repo/mono/scripts"
+export PATH=".:$PATH:.:$HOME/bin:$HOME/go/bin:$HOME/repo/mono/scripts"
 export PROMPT_COMMAND='echo'
 export BROWSER=firefox
 export EDITOR=nvim
@@ -22,7 +23,7 @@ export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway
 export XDG_CURRENT_SESSION_TYPE=wayland
 export MOZ_ENABLE_WAYLAND=1
+export PODMAN_COMPOSE_WARNING_LOGS=0
 
 PS1="\W \[\033[1;31m\]>\[\033[0m\] "
-
 
