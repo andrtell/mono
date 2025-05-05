@@ -93,7 +93,7 @@ local netrw_keys = function ()
   n("H", "h", opt)
 end
 
-local netrw_group = create_augroup("netrw-0", {clear=true})
+local netrw_group = create_augroup("NETRW", {clear=true})
 
 create_autocmd("filetype", {
   pattern="netrw",
@@ -112,7 +112,7 @@ vim.fn.sign_define("DiagnosticSignError", {text=""})
 
 vim.diagnostic.config {virtual_text=false}
 
-local patch_underline = function () 
+local patch_diagnostic_underline = function () 
   local ns = vim.api.nvim_create_namespace "diagnostic"
   local old_show = vim.diagnostic.handlers.underline.show
   local old_hide = vim.diagnostic.handlers.underline.hide
@@ -140,7 +140,11 @@ local patch_open_float = function ()
   local new_open_float = function(old_opts) 
     local ext_opts = {
       border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
-      focus = false, header = "", prefix = " ", scope = "line", suffix = " "
+      focus = false, 
+      scope = "line",
+      header = "", 
+      prefix = " ", 
+      suffix = " "
     }
     local new_opts = vim.tbl_extend("force", old_opts or {}, ext_opts)
     bufno, win_id = old_open_float(new_opts)
@@ -160,12 +164,12 @@ local patch_open_float = function ()
   vim.diagnostic.open_float = new_open_float
 end
 
-local diagnostic_group = create_augroup("DIAGNOSTIC-0", {clear=true}) 
+local diagnostic_group = create_augroup("DIAGNOSTIC", {clear=true}) 
 
 create_autocmd("VimEnter", {
   group=diagnostic_group,
   callback=function ()
-    patch_underline()
+    patch_diagnostic_underline()
     patch_open_float()
   end
 })
@@ -174,42 +178,31 @@ create_autocmd("VimEnter", {
 -- LSP
 ------------------------------------------------------------
 
-local lsp_keys = function()
+local set_lsp_keys = function()
     local opt = { silent=true, buffer=true }
     n("gD", function () vim.lsp.buf.declaration() end)
     n("gd", function () vim.lsp.buf.definition() end)
     return false
 end
 
-local lsp_format_buffer = function()
+local format_buffer = function()
     if vim.bo.modified then
       vim.lsp.buf.format()
     end
 end
 
-local lsp_setup_format_buffer = function(buf)
-  local group = create_buf_augroup("LSP-1", buf)
-  create_autocmd("bufwrite", {
-    buffer = buf,
-    group = group,
-    callback = function()
-      lsp_format_buffer()
-    end
-  })
-end
-
-local lsp_organize_imports_buffer = function(buf)
+local organize_imports = function(buf)
   if not vim.bo.modified then
     return
   end
-  local params0 = vim.lsp.util.make_range_params()
-  local patch = {context={diagnostic={}, only={"source.organizeImports"}}}
-  local params1 = vim.tbl_extend("force", params0 or {}, patch) 
+  local old_params = vim.lsp.util.make_range_params()
+  local ext_params = {context={diagnostic={}, only={"source.organizeImports"}}}
+  local new_params = vim.tbl_extend("force", old_params or {}, ext_params) 
   local timeout_ms = 500
   local response = vim.lsp.buf_request_sync(
     buf, 
     "textDocument/codeAction", 
-    params1, 
+    new_params, 
     timeout_ms
   )
   for _, result_list in ipairs(response or {}) do
@@ -219,18 +212,29 @@ local lsp_organize_imports_buffer = function(buf)
   end
 end
 
-local lsp_setup_organize_imports_buffer = function(buf)
+local format_buffer_autocmd = function(buf)
+  local group = create_buf_augroup("LSP-1", buf)
+  create_autocmd("bufwrite", {
+    buffer = buf,
+    group = group,
+    callback = function(_ev)
+      format_buffer()
+    end
+  })
+end
+
+local organize_imports_autocmd = function(buf)
   local group = create_buf_augroup("LSP-2", buf)
   create_autocmd("bufwrite", {
     buffer = buf,
     group = group,
     callback = function(ev)
-      lsp_organize_imports_buffer(ev.buf)
+      organize_imports(ev.buf)
     end
   })
 end
 
-local lsp_setup_show_float = function(buf)
+local float_autocmd = function(buf)
   local group = create_buf_augroup("LSP-3", buf)
   create_autocmd("cursorhold", {
     buffer = buf,
@@ -242,27 +246,27 @@ local lsp_setup_show_float = function(buf)
   })
 end
 
-local lsp_group = create_augroup("LSP-0", {clear=true})
+local lsp_group = create_augroup("LSP", {clear=true})
 
 create_autocmd("lspattach", {
   group=lsp_group,
   callback = function(ev) 
-    lsp_keys()
-    lsp_setup_format_buffer(ev.buf)
-    lsp_setup_organize_imports_buffer(ev.buf)
-    lsp_setup_show_float(ev.buf)
+    set_lsp_keys()
+    float_autocmd(ev.buf)
+    format_buffer_autocmd(ev.buf)
+    organize_imports_autocmd(ev.buf)
   end
 })
 
 local patch_open_floating_preview = function()
   old_open_floating_preview = vim.lsp.util.open_floating_preview
   new_open_floating_preview = function(contents, syntax, opts0, ...) 
-    patch = {
+    ext_params = {
       border = {"┌","─", "┐", "│", "┘", "─", "└", "│"},
       max_width = 100,
       focusable=true
     }
-    opts1 = vim.tbl_extend("force", opts0 or {}, patch)
+    opts1 = vim.tbl_extend("force", opts0 or {}, ext_params)
     return old_open_floating_preview(contents, syntax, opts1, unpack(arg))
   end
   vim.lsp.util.open_floating_preview=new_open_floating_preview
@@ -279,7 +283,7 @@ create_autocmd("VimEnter", {
 -- GOLANG
 ------------------------------------------------------------
 
-local golang_group = create_augroup("GOLANG-0", {clear=true})
+local golang_group = create_augroup("START GOPLS", {clear=true})
 
 create_autocmd("filetype", {
   pattern={"go", "gomod", "gowork", "gotmpl"},
@@ -371,7 +375,7 @@ end
 
 -- hl_set()
 
-local hl_augroup = create_augroup("HL", {clear=true})
+local hl_augroup = create_augroup("HIGHLIGHT", {clear=true})
 
 create_autocmd("colorscheme", {
   group=hl_augroup,
