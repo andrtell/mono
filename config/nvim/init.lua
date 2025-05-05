@@ -98,6 +98,79 @@ create_autocmd("filetype", {
 })
 
 ------------------------------------------------------------
+-- LSP
+------------------------------------------------------------
+
+create_autocmd("lspattach", {
+  group = create_augroup("lsp-1", {}),
+  callback = function(ev) 
+    create_autocmd("cursorhold", {
+      buffer = ev.buf,
+      group = create_buf_augroup("lsp-2", ev.buf),
+      callback = function(_)
+        vim.diagnostic.open_float()
+        return false
+      end
+    })
+  end
+})
+
+------------------------------------------------------------
+-- GO
+------------------------------------------------------------
+
+vim.lsp.enable('gopls')
+
+------------------------------------------------------------
+-- TREESITTER
+------------------------------------------------------------
+
+require('nvim-treesitter.configs').setup {
+  auto_install=true,
+  ensure_installed = {
+    "bash", "dockerfile", "json", "lua", "python", "sql", "yaml", 
+    "go", "gomod", "gowork", "gotmpl"
+  },
+  highlight={
+    enable=true
+  }
+}
+
+------------------------------------------------------------
+-- CMP
+------------------------------------------------------------
+
+local cmp = require('cmp')
+
+cmp.setup({
+  snippet = {
+    expand = function(args)
+      vim.snippet.expand(args.body)
+    end,
+  },
+  window = {
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
+  },
+  mapping = cmp.mapping.preset.insert({
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+  }),
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    -- { name = 'vsnip' }, -- For vsnip users.
+    -- { name = 'luasnip' }, -- For luasnip users.
+    -- { name = 'ultisnips' }, -- For ultisnips users.
+    -- { name = 'snippy' }, -- For snippy users.
+  }, {
+    { name = 'buffer' },
+  })
+})
+
+------------------------------------------------------------
 -- DIAGNOSTIC
 ------------------------------------------------------------
 
@@ -173,44 +246,7 @@ create_autocmd("VimEnter", {
   callback=patch_open_float
 })
 
-------------------------------------------------------------
--- LSP
-------------------------------------------------------------
 
-create_autocmd("lspattach", {
-  group = create_augroup("lsp-1", {}),
-  callback = function(ev) 
-    create_autocmd("cursorhold", {
-      buffer = ev.buf,
-      group = create_buf_augroup("lsp-2", ev.buf),
-      callback = function(_)
-        vim.diagnostic.open_float()
-        return false
-      end
-    })
-  end
-})
-
-------------------------------------------------------------
--- GOLANG
-------------------------------------------------------------
-
-vim.lsp.enable('gopls')
-
-------------------------------------------------------------
--- TREESITTER
-------------------------------------------------------------
-
-require('nvim-treesitter.configs').setup {
-  auto_install=true,
-  ensure_installed = {
-    "bash", "dockerfile", "json", "lua", "python", "sql", "yaml", 
-    "go", "gomod", "gowork", "gotmpl"
-  },
-  highlight={
-    enable=true
-  }
-}
 
 ------------------------------------------------------------
 -- COLOR
@@ -229,7 +265,7 @@ local hl_clear = function()
 end
 
 local hl_set = function ()
-  local red = "#B01010"
+  local red = "#AB0303"
   local green = "#167e18"
   local blue = "#001097"
   -- vim
