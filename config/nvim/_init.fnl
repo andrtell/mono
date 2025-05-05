@@ -89,7 +89,7 @@
 
 (each [hlgrp _ (pairs (vim.api.nvim_get_hl 0 {}))]
   (if (= "string" (type hlgrp))
-     (vim.api.nvim_set_hl 0 hlgrp {:fg "#010101" :bg "#fefefe"}))) 
+     (vim.api.nvim_set_hl 0 hlgrp {:fg "#101010" :bg "#fdfdfd"}))) 
     
 (local colors [["Search"       {:bg "#faefd8"}] 
                ["IncSearch"    {:bg "#faefd8"}]
@@ -129,6 +129,7 @@
   (let [group (vim.api.nvim_create_augroup name {:clear false})]
    (vim.api.nvim_clear_autocmds {:group group :buffer bufnr})
    group))
+
 
 ;
 ; Netrw
@@ -213,7 +214,7 @@
   (let [params-0 (vim.lsp.util.make_range_params)
 	params-1 (vim.tbl_extend "force" params-0 {:context {:diagnostic {} 
 				                             :only ["source.organizeImports"]}})
-        results (vim.lsp.buf_request_sync buf "textDocument/codeAction" params-1 500)]
+        results (vim.lsp.buf_request_sync buf "textDocument/codeAction" params-1 1000)]
     (if results 
 	(let [result-1 (. results 1)]
 	  (if result-1.result
@@ -264,4 +265,13 @@
         :single_file_support true
         :root_dir (vim.fs.root ev.buf ["go.work" "go.mod" ".git"])}))})
 
+;
+; Treesitter
+;
 
+(let [treesitter-config (require :nvim-treesitter.configs)
+      ts-setup          (. treesitter-config :setup)]
+  (ts-setup
+    {:ensure_installed [:bash :dockerfile :fennel :json :lua :python :sql :yaml :tcl]
+     :auto_install true
+     :highlight {:enable true}}))
