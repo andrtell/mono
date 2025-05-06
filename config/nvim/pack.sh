@@ -31,3 +31,7 @@ git -C "nvim-cmp" pull || \
 
 git -C "tiny-inline-diagnostic.nvim" pull || \
 	git clone "https://github.com/rachartier/tiny-inline-diagnostic.nvim.git"
+
+git -C "LuaSnip" pull || \
+	git clone https://github.com/L3MON4D3/LuaSnip.git
+

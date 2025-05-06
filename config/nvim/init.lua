@@ -51,8 +51,13 @@ local create_buf_augroup=function(name, buf)
   return group
 end
 
-local imap = function(l, r, opts) vim.keymap.set("i", l, r, opts or {}) end
-local nmap = function(l, r, opts) vim.keymap.set("n", l, r, opts or {}) end
+local imap = function(l, r, opts)
+  vim.keymap.set("i", l, r, opts or {}) 
+end
+
+local nmap = function(l, r, opts) 
+  vim.keymap.set("n", l, r, opts or {}) 
+end
 
 ------------------------------------------------------------
 -- KEY
@@ -82,26 +87,24 @@ nmap("S",         "<Plug>(leap-from-window)")
 nmap("]d", function () vim.diagnostic.goto_next {float=false} end)
 nmap("[d", function () vim.diagnostic.goto_prev {float=false} end)
 
--- vim.keymap.del({'i', 's'}, "<Tab>")
--- vim.keymap.del({'i', 's'}, "<S-Tab>")
-
-local function set_snippet_jump(direction, key)
-  local handle_keypress = function()
-    if vim.snippet.active({ direction = direction }) then
-      return string.format('<Cmd>lua vim.snippet.jump(%d)<CR>', direction)
-    else
-      return key
-    end
+do
+  local function set_snippet_jump(direction, key)
+    vim.keymap.set({ 'i', 's' }, key, function()
+      if vim.snippet.active({ direction = direction }) then
+        return string.format('<Cmd>lua vim.snippet.jump(%d)<CR>', direction)
+      else
+        return key
+      end
+    end, {
+      desc = 'vim.snippet.jump if active, otherwise ' .. key,
+      expr = true,
+      silent = true,
+    })
   end
-  local opts = {
-    expr = true,
-    silent = true,
-  }
-  vim.keymap.set({ 'i', 's' }, key, handle_keypress, opts)
-end
 
-set_snippet_jump(1, '<C-k>')
-set_snippet_jump(-1, '<C-j>')
+  set_snippet_jump(1, '<CR>')
+  set_snippet_jump(-1, '<S-CR>')
+end
 
 ------------------------------------------------------------
 -- NETRW
@@ -126,16 +129,50 @@ create_autocmd("filetype", {
     hi("CursorLine", {bg="#efefef"})
     hi("NetrwDir", {bg="none"})
     hi("NetrwExe", {bg="none"})
+    hi("NetrwClassify", {fg="#008080"})
   end,
 })
 
 ------------------------------------------------------------
--- TINY INLINE
+-- LSP
 ------------------------------------------------------------
 
-require('tiny-inline-diagnostic').setup({
-  -- preset = "minimal",
-  signs = {
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    -- delay update diagnostics
+    update_in_insert = false,
+  }
+)
+
+------------------------------------------------------------
+-- GO
+------------------------------------------------------------
+
+do
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+  vim.lsp.config('gopls', {capabilities = capabilites})
+  vim.lsp.enable('gopls')
+
+  local group = create_augroup("go-1", {})
+
+  local callback = function ()
+    nmap("<leader>i", "<Plug>(go-info)")
+    nmap("<leader>r", "<Plug>(go-run)")
+  end
+
+  create_autocmd("BufEnter", {
+    group=group, 
+    pattern="*.go", 
+    callback = callback
+  })
+end
+
+------------------------------------------------------------
+-- TINY INLINE
+------------------------------------------------------------
+do
+  local signs = {
     left = "",
     right = "",
     diag = "",
@@ -143,192 +180,283 @@ require('tiny-inline-diagnostic').setup({
     up_arrow = "",
     vertical = " ",
     vertical_end = " ",
-  },
-})
+  }
 
-------------------------------------------------------------
--- GO
-------------------------------------------------------------
-
-vim.lsp.enable('gopls')
-
-create_autocmd("BufEnter", {
-  group=create_augroup("go-1", {}),
-  pattern="*.go",
-  callback = function ()
-    nmap("<leader>i", "<Plug>(go-info)")
-  end
-})
+  require('tiny-inline-diagnostic').setup({signs = signs})
+end
 
 ------------------------------------------------------------
 -- TREESITTER
 ------------------------------------------------------------
 
-require('nvim-treesitter.configs').setup {
-  auto_install=true,
-  ensure_installed = {
-    "bash", "dockerfile", "json", "lua", "python", "sql", "yaml", 
-    "go", "gomod", "gowork", "gotmpl"
-  },
-  highlight={
-    enable=true
+do
+  local ensure_installed = {
+      "bash", "dockerfile", "json", "lua", "python", "sql", "yaml", 
+      "go", "gomod", "gowork", "gotmpl"
   }
-}
+
+  require('nvim-treesitter.configs').setup {
+    auto_install=true,
+    ensure_installed = ensure_installed,
+    highlight={enable=true}
+  }
+end
+
+------------------------------------------------------------
+-- LuaSnip
+------------------------------------------------------------
+
+do
+  local ls = require("luasnip")
+  ls.setup()
+  local s = ls.snippet
+  local t = ls.text_node
+  local i = ls.insert_node
+
+  ls.add_snippets("go", {
+    s("hello", {
+      t('x := 1')
+    })
+  })
+end
 
 ------------------------------------------------------------
 -- CMP
 ------------------------------------------------------------
 
-local cmp = require('cmp')
+do
 
-cmp.setup({
-  snippet = {
+  local luasnip = require('luasnip')
+
+  local cmp = require('cmp')
+
+  local has_words_before = function()
+    unpack = unpack or table.unpack
+    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+    return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
+  end
+
+  local snippet = {
     expand = function(args)
-      vim.snippet.expand(args.body)
+      luasnip.lsp_expand(args.body)
     end,
-  },
-  formatting = {
+  }
+
+  local sources = cmp.config.sources(
+    {{ name = 'nvim_lsp' }, { name = 'luasnip' }}, 
+    {{ name = 'buffer' }}
+  )
+
+  local completion = {
+    autocomplete = false,
+    -- completeopt = 'menu,menuone,noselect'
+  }
+
+  local formatting = {
     expandable_indicator = false,
-    fields = {"abbr"}
-  },
-  window = {
+    fields = {"abbr"},
+  }
+
+  local window = {
     completion = cmp.config.window.bordered({
-      border={" "},
-      winhighlight = 'Normal:Pmenu,FloatBorder:PMenu,CursorLine:PmenuSel,Search:None',
+      winhighlight = 'Normal:Pmenu,FloatBorder:FloatBoarder,CursorLine:PmenuSel,Search:None',
+      border={""},
     }),
     documentation = cmp.config.disable
-  },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<C-k>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-  }),
-  sources = cmp.config.sources({{ name = 'nvim_lsp' }}, {{ name = 'buffer' }})
-})
+  }
+
+  local mapping = {
+    ['<C-n']  = cmp.config.disable,
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>']  = cmp.mapping(
+      function(fallback)
+        if cmp.visible() then
+          if luasnip.expandable() then
+            luasnip.expand()
+          else
+            cmp.confirm({select = true})
+          end
+        else
+          fallback()
+        end
+      end
+    ),
+    ["<S-Tab>"] = cmp.mapping(
+      function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        elseif luasnip.locally_jumpable(-1) then
+          luasnip.jump(-1)
+        else
+          fallback()
+        end
+      end, 
+      { "i", "s" }
+    ),
+    ['<Tab>'] = cmp.mapping(
+      function(fallback)
+        if cmp.visible() then
+          if #cmp.get_entries() == 1 then
+            cmp.confirm({ select = true })
+          else
+            cmp.select_next_item()
+          end
+        elseif luasnip.locally_jumpable(1) then
+          luasnip.jump(1)
+        elseif luasnip.expandable() then
+          luasnip.expand()
+        elseif has_words_before() then
+          cmp.complete()
+          if #cmp.get_entries() == 1 then
+            cmp.confirm({ select = true })
+          else
+            cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+          end
+        else
+          fallback()
+        end
+      end, 
+      { "i", "s" }
+    ),
+  }
+
+  cmp.setup({
+    snippet = snippet,
+    mapping = mapping,
+    sources = sources,    
+    completion = completion,
+    preselect = cmp.PreselectMode.None,
+    formatting = formatting,
+    window = window
+  })
+end
 
 ------------------------------------------------------------
 -- DIAGNOSTIC
 ------------------------------------------------------------
 
-vim.diagnostic.config {
-  virtual_text=false,
-  signs = { 
+do
+  local signs = { 
     text = { 
       [vim.diagnostic.severity.ERROR] = "", 
       [vim.diagnostic.severity.WARN] = "" 
     }
   }
-}
 
-local patch_diagnostic_underline = function (...) 
-  local new_ns = vim.api.nvim_create_namespace "diagnostic-1"
-  local old_show = vim.diagnostic.handlers.underline.show
-  local old_hide = vim.diagnostic.handlers.underline.hide
-  local new_show = function (_ns, buf, ds, opt)
-    for _, d in ipairs(ds) do
-      if d.col == d.end_col then
-        local last_col = vim.fn.strlen(vim.fn.getline("."))
-        if d.col == last_col then
-          d.col = 0
-        else
-          d.end_col = last_col
+  vim.diagnostic.config {
+    signs = signs,
+    virtual_text=false,
+  }
+
+  local patch = function (...) 
+    local new_ns = vim.api.nvim_create_namespace "diagnostic-1"
+    local old_show = vim.diagnostic.handlers.underline.show
+    local old_hide = vim.diagnostic.handlers.underline.hide
+    local new_show = function (_ns, buf, ds, opt)
+      for _, d in ipairs(ds) do
+        if d.col == d.end_col then
+          local last_col = vim.fn.strlen(vim.fn.getline("."))
+          if d.col == last_col then
+            d.col = 0
+          else
+            d.end_col = last_col
+          end
         end
       end
+      return old_show(new_ns, buf, ds, opt)
     end
-    return old_show(new_ns, buf, ds, opt)
+    local new_hide = function (_ns, buf)
+      return old_hide(new_ns, buf) 
+    end
+    vim.diagnostic.handlers.underline = {show=new_show, hide=new_hide}
   end
-  local new_hide = function (_ns, buf)
-    return old_hide(new_ns, buf) 
-  end
-  vim.diagnostic.handlers.underline = {show=new_show, hide=new_hide}
-end
 
-create_autocmd("VimEnter", {
-  group=create_augroup("diagnostic-1", {}),
-  callback=patch_diagnostic_underline
-})
+  local group = create_augroup("diagnostic", {})
+
+  create_autocmd("VimEnter", {
+    group=group,
+    callback=patch
+  })
+end
 
 ------------------------------------------------------------
 -- COLOR
 ------------------------------------------------------------
 
-local clear_highlight = function() 
-  for hlgroup, _ in pairs(vim.api.nvim_get_hl(0, {})) do
-    if type(hlgroup) == "string" then
-      hi(hlgroup, {fg="#101010", bg="#fefefe"})
+do
+  local colors = function() 
+
+    for hlgroup, _ in pairs(vim.api.nvim_get_hl(0, {})) do
+      if type(hlgroup) == "string" then
+        hi(hlgroup, {fg="#101010", bg="#fefefe"})
+      end
     end
+
+    local red_fg = "#A90303"
+    local green_fg = "#107020"
+    local blue_fg = "#002282"
+
+    hi("normal",        {fg="#101010", bg="#fefefe"}) 
+    hi("comment",       {fg="#9c9ea3"}) 
+    hi("cursearch",     {bg="#faf2d8"})
+    hi("endofbuffer",   {fg="#fefefe"})
+    hi("floatborder",   {fg="#a4a4a4"})
+    hi("incsearch",     {bg="#faf2d8"})
+    hi("matchparen",    {bg="#e3eefd"})
+    hi("PMenu",         {bg="#f0f0f1"})
+    hi("PMenuSel",      {fg="#000000", bg="#dddde3"})
+    hi("PMenuMatch",    {bg=none})
+    hi("PMenuMatchSel", {bg=none})
+    hi("search",        {bg="#faf2d8"})
+    hi("statusline",    {bg="#ebebeb"}) 
+    hi("visual",        {bg="#e4effe"})
+    hi("visualnos",     {bg="#e4effe"})
+    hi("winseparator",  {fg="#e2e2e2"})
+
+    -- code
+    hi("@comment",      {fg="#9c9ea3"})
+
+    -- lua
+    hi("@string.lua",              {fg=green_fg})
+    hi("@string.escape.lua",       {fg=green_fg})
+    hi("@boolean.lua",             {fg="purple"})
+    hi("@number.lua",              {fg=red_fg})
+    hi("@keyword.conditional.lua", {fg=blue_fg})
+    hi("@keyword.function.lua",    {fg=blue_fg})
+    hi("@keyword.lua",             {fg=blue_fg})
+    hi("@keyword.operator.lua",    {fg=blue_fg})
+    hi("@keyword.repeat.lua",      {fg=blue_fg})
+    hi("@keyword.return.lua",      {fg=blue_fg})
+    hi("@constructor.lua",         {fg="#3c3c45"})
+
+    hi("SnippetTabStop", {bg="#faf2d8"}) 
+
+    hi("TinyInlineDiagnosticVirtualTextError", {bg="#f0f0f1"})
+    hi("TinyInlineDiagnosticVirtualTextWarn", {bg="#f0f0f1"})
+    hi("TinyInlineDiagnosticVirtualTextHint", {bg="#f0f0f1"})
+    hi("TinyInlineDiagnosticVirtualTextArrow", {fg="#efeff1"})
+
+    hi("LeapLabelPrimary",         {bg="#fadffa"})
+
+    hi("DiagnosticUnderlineError", {bg="#fce5e5"})
+    hi("DiagnosticUnderlineWarn",  {bg="#fbe5e5"})
+    hi("DiagnosticUnderlineInfo",  {bg="#fbe5e5"})
+    hi("DiagnosticUnderlineHint",  {bg="#fbe5e5"}) 
+    hi("DiagnosticUnnecessary",    {bg="#fbe5e5"}) 
+    hi("DiagnosticDeprecated",     {bg="#fbe5e5"})
+    hi("DiagnosticFloatingError",  {fg="#030303"})
+    hi("DiagnosticError",          {bg="#fbe5e5"})
+    hi("DiagnosticWarn",           {bg="#fbe5e5"})
+
   end
+
+  local group = create_augroup("HIGHLIGHT", {})
+
+  create_autocmd("colorscheme", {
+    group=group,
+    pattern='default',
+    callback=colors
+  })
+
+  vim.cmd("colorscheme default")
 end
-
-local set_highlight = function ()
-  local red_fg = "#A90303"
-  local green_fg = "#167e18"
-  local blue_fg = "#001590"
-  -- vim
-  hi("normal",        {fg="#101010", bg="#fdfdfd"}) 
-  hi("comment",       {fg="#9c9ea3"}) 
-  hi("cursearch",     {bg="#faf2d8"})
-  hi("endofbuffer",   {fg="#fefefe"})
-  hi("floatborder",   {fg="#a4a4a4"})
-  hi("incsearch",     {bg="#faf2d8"})
-  hi("matchparen",    {bg="#e3eefd"})
-  hi("PMenu",         {bg="#f0f0f1"})
-  hi("PMenuSel",      {fg="#000000", bg="#dddde3"})
-  hi("PMenuMatch",    {bg=none})
-  hi("PMenuMatchSel", {bg=none})
-  hi("search",        {bg="#faf2d8"})
-  hi("statusline",    {bg="#ebebeb"}) 
-  hi("visual",        {bg="#e4effe"})
-  hi("visualnos",     {bg="#e4effe"})
-  hi("winseparator",  {fg="#e2e2e2"})
-  -- code
-  hi("@comment",      {fg="#9c9ea3"})
-  -- lua
-  hi("@string.lua",              {fg=green_fg})
-  hi("@string.escape.lua",       {fg=green_fg})
-  hi("@boolean.lua",             {fg="purple"})
-  hi("@number.lua",              {fg=red_fg})
-  hi("@keyword.conditional.lua", {fg=blue_fg})
-  hi("@keyword.function.lua",    {fg=blue_fg})
-  hi("@keyword.lua",             {fg=blue_fg})
-  hi("@keyword.operator.lua",    {fg=blue_fg})
-  hi("@keyword.repeat.lua",      {fg=blue_fg})
-  hi("@keyword.return.lua",      {fg=blue_fg})
-  hi("@constructor.lua",         {fg="#3c3c45"})
-  -- go
-  hi("SnippetTabStop", {bg="#faf2d8"}) 
-  -- tiny
-  hi("TinyInlineDiagnosticVirtualTextError", {bg="#f0f0f1"})
-  hi("TinyInlineDiagnosticVirtualTextWarn", {bg="#f0f0f1"})
-  hi("TinyInlineDiagnosticVirtualTextHint", {bg="#f0f0f1"})
-  hi("TinyInlineDiagnosticVirtualTextArrow", {fg="#efeff1"})
-  -- leap
-  hi("LeapLabelPrimary",         {bg="#fadffa"})
-  -- diagnostic
-  hi("DiagnosticUnderlineError", {bg="#fce5e5"})
-  hi("DiagnosticUnderlineWarn",  {bg="#fbe5e5"})
-  hi("DiagnosticUnderlineInfo",  {bg="#fbe5e5"})
-  hi("DiagnosticUnderlineHint",  {bg="#fbe5e5"}) 
-  hi("DiagnosticUnnecessary",    {bg="#fbe5e5"}) 
-  hi("DiagnosticDeprecated",     {bg="#fbe5e5"})
-  hi("DiagnosticFloatingError",  {fg="#030303"})
-  hi("DiagnosticError",          {bg="#fbe5e5"})
-  hi("DiagnosticWarn",           {bg="#fbe5e5"})
-  -- netrw
-end
-
-set_highlight()
-
--- clear_highlight()
-create_autocmd("colorscheme", {
-  group=create_augroup("HIGHLIGHT", {}),
-  pattern='default',
-  callback=function () 
-    clear_highlight()
-    set_highlight()
-  end,
-})
-
-vim.cmd("colorscheme default")
