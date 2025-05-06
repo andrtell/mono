@@ -23,8 +23,11 @@ git -C "nvim-lspconfig" pull || \
 git -C "vim-go" pull || \
 	git clone https://github.com/fatih/vim-go.git
 
-git -C "cmp-nvim-lsp" || \
+git -C "cmp-nvim-lsp" pull || \
 	git clone https://github.com/hrsh7th/cmp-nvim-lsp
 
-git -C "nvim-cmp" || \
+git -C "nvim-cmp" pull || \
 	git clone https://github.com/hrsh7th/nvim-cmp
+
+git -C "tiny-inline-diagnostic.nvim" pull || \
+	git clone "https://github.com/rachartier/tiny-inline-diagnostic.nvim.git"
