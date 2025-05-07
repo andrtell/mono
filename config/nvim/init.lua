@@ -206,19 +206,33 @@ end
 -- LuaSnip
 ------------------------------------------------------------
 
-do
-  local ls = require("luasnip")
-  ls.setup()
-  local s = ls.snippet
-  local t = ls.text_node
-  local i = ls.insert_node
+require("luasnip.loaders.from_vscode").lazy_load()
 
-  ls.add_snippets("go", {
-    s("hello", {
-      t('x := 1')
-    })
+do
+  local luasnip = require('luasnip')
+
+  vim.api.nvim_create_autocmd("ModeChanged", {
+    group = create_augroup("UnlinkLuaSnipSnippetOnModeChange", {}),
+    pattern = { "s:n", "i:*" },
+    callback = function(evt)
+      -- If we have n active nodes, n - 1 will still remain after a `unlink_current()` call.
+      -- We unlink all of them by wrapping the calls in a loop.
+      while true do
+        if luasnip.session and luasnip.session.current_nodes[evt.buf] and not luasnip.session.jump_active then
+          luasnip.unlink_current()
+        else
+          break
+        end
+      end
+    end,
   })
 end
+
+------------------------------------------------------------
+-- AutoPairs
+------------------------------------------------------------
+
+require('nvim-autopairs').setup({})
 
 ------------------------------------------------------------
 -- CMP
@@ -226,15 +240,25 @@ end
 
 do
 
-  local luasnip = require('luasnip')
-
   local cmp = require('cmp')
+
+  do
+    local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+
+    cmp.event:on(
+      'confirm_done',
+      cmp_autopairs.on_confirm_done()
+    )
+  end
+
 
   local has_words_before = function()
     unpack = unpack or table.unpack
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
   end
+
+  local luasnip = require('luasnip')
 
   local snippet = {
     expand = function(args)
@@ -265,6 +289,32 @@ do
     documentation = cmp.config.disable
   }
 
+  local tab_map = cmp.mapping(
+    function(fallback)
+      if cmp.visible() then
+        if #cmp.get_entries() == 1 then
+          cmp.confirm({ select = true })
+        else
+          cmp.select_next_item()
+        end
+      elseif luasnip.locally_jumpable(1) then
+        luasnip.jump(1)
+      elseif luasnip.expandable() then
+        luasnip.expand()
+      elseif has_words_before() then
+        cmp.complete()
+        if #cmp.get_entries() == 1 then
+          cmp.confirm({ select = true })
+        else
+          cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+        end
+      else
+        fallback()
+      end
+    end,
+    { "i", "s" }
+  )
+
   local mapping = {
     ['<C-n']  = cmp.config.disable,
     ['<C-e>'] = cmp.mapping.close(),
@@ -293,31 +343,8 @@ do
       end, 
       { "i", "s" }
     ),
-    ['<Tab>'] = cmp.mapping(
-      function(fallback)
-        if cmp.visible() then
-          if #cmp.get_entries() == 1 then
-            cmp.confirm({ select = true })
-          else
-            cmp.select_next_item()
-          end
-        elseif luasnip.locally_jumpable(1) then
-          luasnip.jump(1)
-        elseif luasnip.expandable() then
-          luasnip.expand()
-        elseif has_words_before() then
-          cmp.complete()
-          if #cmp.get_entries() == 1 then
-            cmp.confirm({ select = true })
-          else
-            cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-          end
-        else
-          fallback()
-        end
-      end, 
-      { "i", "s" }
-    ),
+    ['<Tab>'] = tab_map,
+    ['<C-n>'] = cmp.config.disable,
   }
 
   cmp.setup({
@@ -437,13 +464,13 @@ do
     hi("TinyInlineDiagnosticVirtualTextArrow", {fg="#efeff1"})
 
     hi("LeapLabelPrimary",         {bg="#fadffa"})
-
-    hi("DiagnosticUnderlineError", {bg="#fce5e5"})
-    hi("DiagnosticUnderlineWarn",  {bg="#fbe5e5"})
-    hi("DiagnosticUnderlineInfo",  {bg="#fbe5e5"})
-    hi("DiagnosticUnderlineHint",  {bg="#fbe5e5"}) 
-    hi("DiagnosticUnnecessary",    {bg="#fbe5e5"}) 
-    hi("DiagnosticDeprecated",     {bg="#fbe5e5"})
+    -- #fbe5e5"
+    hi("DiagnosticUnderlineError", {underline=true, sp="#FF0000"})
+    hi("DiagnosticUnderlineWarn",  {underline=true, sp="#FF0000"})
+    hi("DiagnosticUnderlineInfo",  {underline=true, sp="#FF0000"})
+    hi("DiagnosticUnderlineHint",  {underline=true, sp="#FF0000"}) 
+    hi("DiagnosticUnnecessary",    {underline=true, sp="#FF0000"}) 
+    hi("DiagnosticDeprecated",     {underline=true, sp="#FF0000"})
     hi("DiagnosticFloatingError",  {fg="#030303"})
     hi("DiagnosticError",          {bg="#fbe5e5"})
     hi("DiagnosticWarn",           {bg="#fbe5e5"})

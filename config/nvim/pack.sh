@@ -35,3 +35,11 @@ git -C "tiny-inline-diagnostic.nvim" pull || \
 git -C "LuaSnip" pull || \
 	git clone https://github.com/L3MON4D3/LuaSnip.git
 
+git -C "friendly-snippets" pull || \
+	git clone https://github.com/rafamadriz/friendly-snippets.git
+
+git -C "auto-save.nvim" pull || \
+	git clone https://github.com/pocco81/auto-save.nvim.git
+
+git -C "nvim-autopairs" pull || \
+	git clone https://github.com/windwp/nvim-autopairs.git
